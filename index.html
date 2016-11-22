@@ -18,6 +18,42 @@
       <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
       <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
     <![endif]-->
+    <style>
+      html, body, #graph {
+        padding:0xp;
+        margin:0px;
+        width: 100%;
+        height: 100%;
+      }
+      svg {
+        font: 14px sans-serif;
+        margin: 50px;
+      }
+      .background path {
+        fill: none;
+        stroke: #ccc;
+        stroke-opacity: .4;
+        shape-rendering: crispEdges;
+      }
+      .foreground path {
+        fill: none;
+        stroke: steelblue;
+        stroke-opacity: .7;
+        stroke-width: 1.5;
+      }
+      .axis text {
+        text-shadow: 0 1px 0 #fff;
+        cursor: move;
+        -webkit-text-stroke: 1px #fff;
+         color: black;
+         text-shadow:
+             2px 2px 0 #fff,
+             -2px -2px 0 #fff,  
+             2px -2px 0 #fff,
+             -2px 2px 0 #fff,
+             2px 2px 0 #fff;
+      }
+    </style>
   </head>
 
   <body>
@@ -49,6 +85,8 @@
     <script src="js/jquery.dataTables.min.js"></script>
     <script src="js/dataTables.bootstrap.js"></script>
     <script src='js/csv_to_html_table.js'></script>
+    <div id="graph"></div>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/d3/4.1.1/d3.min.js"></script>
 
     <script>
       function format_link(link){
@@ -65,6 +103,90 @@
         csv_options: {separator: ',', delimiter: '"'},
         datatables_options: {"paging": false},
         custom_formatting: [[4, format_link]]
+      });
+      d3.csv("data/carrier_general.csv", function(err, carrier_data) {
+        console.log(carrier_data)
+        var data = [];
+        for (i = 0; i < carrier_data.length; i++){
+          data.push({
+                    "2010": carrier_data[i]["2010_ontime"],
+                    "2011": carrier_data[i]["2011_ontime"],
+                    "2012": carrier_data[i]["2012_ontime"],
+                    "2013": carrier_data[i]["2013_ontime"],
+                    "2014": carrier_data[i]["2014_ontime"],
+                    "2015": carrier_data[i]["2015_ontime"]
+                  })
+        }
+        var m = [30, 10, 10, 10],
+          w = 1000 - m[1] - m[3],
+          h = 300 - m[0] - m[2];
+        var x = d3.scaleBand().range([0, w]);
+        var y = {};
+        var dragging = {};
+        var line = d3.line();
+        var axis = d3.axisLeft();
+        var background;
+        var foreground;
+        var svg = d3.select("body").append("svg:svg")
+          .attr("width", w + m[1] + m[3])
+          .attr("height", h + m[0] + m[2])
+          .append("svg:g")
+          .attr("transform", "translate(" + m[3] + "," + m[0] + ")");
+        x.domain(dimensions = d3.keys(data[0]).filter(function(d) {
+          if (d === "name") return false;
+          if (d === "Plant" || d === "Chemical" || d === "Pathway" || d === "Gene" || d === "Disease") {
+            y[d] = d3.scalePoint().domain(data.map(function(p) {
+              return p[d];
+            })).range([h, 0]);
+          } else {
+            y[d] = d3.scaleLinear()
+              .domain(d3.extent(data, function(p) {
+                return +p[d];
+              }))
+              .range([h, 0]);
+          }
+          return true;
+        }));
+        background = svg.append("svg:g")
+          .attr("class", "background")
+          .selectAll("path")
+          .data(data)
+          .enter().append("svg:path")
+          .attr("d", path);
+        foreground = svg.append("svg:g")
+          .attr("class", "foreground")
+          .selectAll("path")
+          .data(data)
+          .enter().append("svg:path")
+          .attr("d", path);
+        var g = svg.selectAll(".dimension")
+          .data(dimensions)
+          .enter().append("svg:g")
+          .attr("class", "dimension")
+          .attr("transform", function(d) {
+            return "translate(" + x(d) + ")";
+          });
+        g.append("svg:g")
+          .attr("class", "axis")
+          .each(function(d) {
+            d3.select(this).call(d3.axisRight(y[d]));
+          })
+          .append("svg:text")
+          .attr("text-anchor", "middle")
+          .attr("y", -20)
+          .text("kasjh");
+        function position(d) {
+          var v = dragging[d];
+          return v == null ? x(d) : v;
+        }
+        function transition(g) {
+          return g.transition().duration(500);
+        }
+        function path(d) {
+          return line(dimensions.map(function(p) {
+            return [position(p), y[p](d[p])];
+          }));
+        }
       });
     </script>
   </body>
