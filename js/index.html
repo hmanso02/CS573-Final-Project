@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset='UTF-8'>
+	
+	<title>D3.js Sortable & Responsive Table</title>
+	
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	
+	<!--[if !IE]><!-->
+	<style>
+	* { 
+	  margin: 0; 
+	  padding: 0; 
+     }
+     body { 
+	   font: 14px/1.4 Georgia, Serif; 
+     }
+    #page-wrap {
+	  margin: 50px;
+    }
+    p {
+	 margin: 20px 0; 
+    }
+	
+	
+
+	/* 
+	Generic Styling, for Desktops/Laptops 
+	*/
+	table { 
+		width: 100%; 
+		border-collapse: collapse; 
+	}
+	/* Zebra striping */
+	tr:nth-of-type(even) { 
+		background:  #ccccff; 
+	}
+	tr:nth-of-type(odd) { 
+		background:  #f2f2f2; 
+	}
+	
+	
+	th { 
+		background:  #8080ff; 
+		color: white; 
+		font-weight: bold; 
+		cursor: s-resize;
+		background-repeat: no-repeat;
+        background-position: 3% center;
+	}
+	th:after{
+	content:"\21D4";
+	display: inline-block;
+	transform:rotate(90deg);
+	
+	}
+	td, th { 
+		padding: 6px; 
+		border: 1px solid #ccc; 
+		text-align: left; 
+		
+	}
+
+	
+	
+	th.des:after {
+      content: "\21E9";
+	  display: inline-block;
+	  transform:rotate(0deg);
+    }
+    
+    th.aes:after {
+      content: "\21E7";
+	  display: inline-block;
+	  transform:rotate(0deg);
+    }
+	
+	/* 
+	Max width before this PARTICULAR table gets nasty
+	This query will take effect for any screen smaller than 760px
+	and also iPads specifically.
+	*/
+	@media 
+	only screen and (max-width: 760px),
+	(min-device-width: 768px) and (max-device-width: 1024px)  {
+	
+		/* Force table to not be like tables anymore */
+		table, thead, tbody, th, td, tr { 
+			display: block; 
+		}
+		
+		/* Hide table headers (but not display: none;, for accessibility) */
+		thead tr { 
+			position: absolute;
+			top: -9999px;
+			left: -9999px;
+		}
+		
+		tr { border: 1px solid #ccc; }
+		
+		td { 
+			/* Behave  like a "row" */
+			border: none;
+			border-bottom: 1px solid #eee; 
+			position: relative;
+			padding-left: 50%; 
+		}
+		
+		td:before { 
+			/* Now like a table header */
+			position: absolute;
+			/* Top/left values mimic padding */
+			top: 6px;
+			left: 6px;
+			width: 45%; 
+			padding-right: 10px; 
+			white-space: nowrap;
+		}
+		
+		/*
+		Label the data
+		*/
+		td:before {
+		  content: attr(data-th) ": ";
+          font-weight: bold;
+          width: 6.5em;
+          display: inline-block;
+		}
+	}
+	
+	/* Smartphones (portrait and landscape) ----------- */
+	@media only screen
+	and (min-device-width : 320px)
+	and (max-device-width : 480px) {
+		body { 
+			padding: 0; 
+			margin: 0; 
+			width: 320px; }
+		}
+	
+	/* iPads (portrait and landscape) ----------- */
+	@media only screen and (min-device-width: 768px) and (max-device-width: 1024px) {
+		body { 
+			width: 495px; 
+		}
+	}
+	
+	</style>
+	<!--<![endif]-->
+
+</head>
+
+<body>
+
+	<div id="page-wrap" style="margin-left:45px; margin-right: 45px; width:auto">
+
+		<h1>Flight Delay Information Check</h1>
+    
+
+	</div>
+	<div id = "filter" style="margin-left:45px; margin-right: 45px; width:auto"><br/>
+		
+		<div id="originFilter" style="margin-right: 45px;display:inline-block;">
+		
+		   <input id ="originInput" type = 'text' placeholder='Origin' name = 'origin' autofocus>
+		   
+		</div>
+		<div id="destFilter" style="display:inline-block;margin-right: 45px;">
+		
+		   <input id ="destInput" type = 'text' placeholder='Destination' name = 'dest' autofocus>
+		   
+		</div>
+		
+		<div id="carrierFilter" style="display:inline-block;margin-right: 45px"></div>
+		<div id="monthFilter" style=" display:inline-block;margin-right: 45px"></div>
+	</div>
+	<div id = "generalInfo" style="margin-left:45px; margin-right: 45px;margin-top:10px; width:auto">
+	</div>
+	<script type="text/javascript" src="http://d3js.org/d3.v4.min.js"></script>
+	<script type="text/javascript">
+	  //var carrier = [AA,AS,B6,DL,F9,HA,MQ,UA,WN]
+	  var carrierName = ["All","American Airlines", "Alaska Airlines","JetBlue Airways","Delta Air","Frontier Airlines","Hawaiian Airlines","United Air Lines","Southwest Airlines"]
+	  var month = ["January","Febrary","March","April","May","June","July","August","Semptember","October","November","December"]
+	  
+	  var selectCarrier = d3.select('#carrierFilter')
+					 .append('select')
+						.attr('class','select1')
+					 .on('change',onchange)
+	  var carrierOptions = selectCarrier.selectAll('option')
+					.data(carrierName).enter()
+					.append('option')
+					 .text(function(d) {return d;})
+					 
+	  var selectMonth = d3.select('#monthFilter')
+					 .append('select')
+						.attr('class','select2')
+					 .on('change',onchange)
+	  var monthOptions = selectMonth.selectAll('option')
+					.data(month).enter()
+					.append('option')
+					 .text(function(d) {return d;});
+					 
+	 
+	
+	  var originValue = d3.select("#originInput").property('value')
+	
+	  
+	  function onchange() {
+		carrierValue = d3.select('#carrierFilter').select('select').property('value')
+		monthValue = d3.select('#monthFilter').select('select').property('value')
+		d3.select('body')
+			.append('p')
+			.text(carrierValue + ' is the last selected carrier.' + monthValue + ' is the last selected month.'  + originValue + 'is the last selected origin.')
+	};
+	  
+	  
+	  d3.csv("data.csv", function(error, data) {
+		  if (error) throw error;
+		  
+		  var sortAscending = true;
+		  var table = d3.select('#generalInfo').append('table');
+		  var titles = d3.keys(data[0]);
+		
+		  var headers = table.append('thead').append('tr')
+		                   .selectAll('th')
+		                   .data(titles).enter()
+		                   .append('th')
+		                   .text(function (d) {
+			                    return d;
+		                    })
+		                   .on('click', function (d) {
+		                	   headers.attr('class', 'header');
+		                	   
+		                	   if (sortAscending) {
+		                	     rows.sort(function(a, b) { return b[d] < a[d]; });
+		                	     sortAscending = false;
+		                	     this.className = 'aes';
+		                	   } else {
+		                		 rows.sort(function(a, b) { return b[d] > a[d]; });
+		                		 sortAscending = true;
+		                		 this.className = 'des';
+		                	   } 
+		                	   
+		                   });
+		  
+		  var rows = table.append('tbody').selectAll('tr')
+		               .data(data).enter()
+		               .append('tr');
+		  rows.selectAll('td')
+		    .data(function (d) {
+		    	return titles.map(function (k) {
+		    		return { 'value': d[k], 'name': k};
+		    	});
+		    }).enter()
+		    .append('td')
+		    .attr('data-th', function (d) {
+		    	return d.name;
+		    })
+		    .text(function (d) {
+		    	return d.value;
+		    });
+	  });
+	</script>
+</body>
+
+</html>
