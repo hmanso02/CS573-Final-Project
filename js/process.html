@@ -43,7 +43,8 @@
                         weather_delay: 0,
                         nas_delay: 0,
                         security_delay: 0,
-                        late_aircraft_delay: 0
+                        late_aircraft_delay: 0,
+						month:0
                     }
                 }
             }
@@ -55,6 +56,7 @@
                 d.NAS_DELAY = +d.NAS_DELAY;
                 d.SECURITY_DELAY = +d.SECURITY_DELAY;
                 d.LATE_AIRCRAFT_DELAY = +d.LATE_AIRCRAFT_DELAY;
+				
 
                 output[airportIndex(d.ORIGIN)][airportIndex(d.DEST)].total_count++;
                 if(d.ARR_DELAY_NEW > 0) {
