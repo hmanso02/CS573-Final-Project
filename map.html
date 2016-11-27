@@ -63,8 +63,8 @@
 
 
     // draw map
-    var width = 650, height = 600, radius1 = 3, radius2 = 5;
-    var margin = {top: 20, right: 20, bottom: 50, left: 50};
+    var width = 650, height = 550, width1 = 400, radius1 = 3, radius2 = 5;
+    var margin = {top: 60, right: 20, bottom: 20, left: 60};
 
     var map = d3.select("body").append("svg")
             .attr("width", width)
@@ -88,6 +88,13 @@
 
     });
 
+    // Add bar chart
+    var bar = d3.select("body").append("svg")
+            .attr("width", width1)
+            .attr("height", height)
+            .append("g")
+            .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
 
     var airportIndex = function(code) {
         for (var i = 0; i < airports.length; i++) {
@@ -108,6 +115,22 @@
     // After user click submit button, find the right file and compute average delay
     function buildResult() {
 
+        var bar_data = [];
+
+        var updateBarChart = function() {
+            bar.selectAll(".bar")
+                    .remove();
+
+            bar.selectAll(".text")
+                    .remove();
+
+            bar.selectAll(".axis")
+                    .remove();
+
+            bar_data = [];
+        };
+
+
         map.selectAll(".dot")
                 .style("opacity", 0.5)
                 .attr("r", radius1)
@@ -115,6 +138,8 @@
 
         map.selectAll(".mapLine")
                 .remove();
+
+        updateBarChart();
 
         carrierValue = d3.select('#carrierFilter').select('select').property('value');
         monthValue = d3.select('#monthFilter').select('select').property('value');
@@ -315,6 +340,8 @@
             map.selectAll(".mapLine")
                     .remove();
 
+            updateBarChart();
+
             var circle = d3.select(this);
 
             dot.transition()
@@ -338,7 +365,9 @@
 
             result[d.index].forEach(function(o) {
                 addLinks(d, o);
+                bar_data.push ([o.dest_code, o.average_delay, o.carrier_delay, o.weather_delay, o.nas_delay, o.security_delay, o.late_aircraft_delay]);
             });
+            createBarChart();
         };
 
         var mapMouseOut = function() {
@@ -362,6 +391,55 @@
                 .on("mouseout", mapMouseOut);
         dot.append("title")
                 .text(function(d) { return d.code; });
+
+        var createBarChart = function() {
+            var xScale = d3.scaleLinear()
+                    .domain([0, d3.max(bar_data, function(d) { return d[1]; })])
+                    .range([0, width1 - margin.left - margin.right]);
+
+            var yScale = d3.scaleBand()
+                    .domain(bar_data.map(function(d) {
+                        return d[0];
+                    }))
+                    .range([0, height - margin.top - margin.bottom])
+                    .padding(0.1);
+
+            bar.append("g")
+                    .attr("transform", "translate(0, 0)")
+                    .attr("class", "axis")
+                    .call(d3.axisTop(xScale));
+            bar.append("text")
+                    .attr("class", "text")
+                    .attr("x", 150)
+                    .attr("y", -30)
+                    .style("text-anchor", "middle")
+                    .text("Average Delay (min)");
+
+            bar.append("g")
+                    .attr("class", "axis")
+                    .call(d3.axisLeft(yScale));
+            bar.append("text")
+                    .attr("class", "text")
+                    .attr("transform", "rotate(-90)")
+                    .attr("x", -200)
+                    .attr("y", -40)
+                    .style("text-anchor", "middle")
+                    .text("Destinations");
+
+            bar.selectAll(".bar")
+                    .data(bar_data)
+                    .enter().append("rect")
+                    .attr("class", "bar")
+                    .style("fill", "#FF4040")
+                    .style("opacity", 0.8)
+                    .attr("x", 0)
+                    .attr("y", function(d) { return yScale(d[0]); })
+                    .attr("height", yScale.bandwidth())
+                    .attr("width", function(d) { return xScale(d[1]); })
+                    .append("title")
+                    .text(function(d) { return d[1]; });
+
+        };
 
     }
 
