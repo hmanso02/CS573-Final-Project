@@ -67,6 +67,7 @@
                 output[i] = [];
                 for (var j = 0; j < 30; j++) {
                     output[i][j] = {
+						carrier: 0,
                         total_count: 0,
                         delay_count: 0,
                         carrier_delay: 0,
@@ -80,6 +81,7 @@
             }
 
             data.forEach(function(d) {
+				d.UNIQUE_CARRIER = d.UNIQUE_CARRIER;
                 d.ARR_DELAY_NEW = +d.ARR_DELAY_NEW;
                 d.CARRIER_DELAY = +d.CARRIER_DELAY;
                 d.WEATHER_DELAY = +d.WEATHER_DELAY;
@@ -91,6 +93,7 @@
 
                 output[airportIndex(d.ORIGIN)][airportIndex(d.DEST)].total_count++;
 				output[airportIndex(d.ORIGIN)][airportIndex(d.DEST)].month = d.MONTH;
+				output[airportIndex(d.ORIGIN)][airportIndex(d.DEST)].carrier = d.UNIQUE_CARRIER;
                 if(d.ARR_DELAY_NEW > 0) {
                     output[airportIndex(d.ORIGIN)][airportIndex(d.DEST)].delay_count++;
                     output[airportIndex(d.ORIGIN)][airportIndex(d.DEST)].carrier_delay += d.CARRIER_DELAY;
@@ -104,9 +107,11 @@
                 for (var q = 0; q < 30; q++) {
                     if (output[p][q].total_count != 0) {
                         var total_delay = output[p][q].carrier_delay + output[p][q].weather_delay + output[p][q].nas_delay + output[p][q].security_delay + output[p][q].late_aircraft_delay;
-                        var percentage = output[p][q].delay_count/output[p][q].total_count;
+                        var percentage = parseFloat(Math.round(output[p][q].delay_count/output[p][q].total_count * 100)) + "%";
 						
-						download.push([indexAirport(p), indexAirport(q),output[p][q].month,percentage, output[p][q].total_count, output[p][q].delay_count, total_delay, output[p][q].carrier_delay, output[p][q].weather_delay, output[p][q].nas_delay, output[p][q].security_delay, output[p][q].late_aircraft_delay]);
+						
+						
+						download.push([indexAirport(p), indexAirport(q),output[p][q].carrier,output[p][q].month,percentage, output[p][q].total_count, output[p][q].delay_count, total_delay, output[p][q].carrier_delay, output[p][q].weather_delay, output[p][q].nas_delay, output[p][q].security_delay, output[p][q].late_aircraft_delay]);
                     }
                 }
             }
@@ -128,7 +133,7 @@
     });
 
     function download_csv() {
-        var csv = 'ORIGIN,DEST,MONTH,PERCENTAGE,TOTAL_Flight,DELAY_Flight,TOTAL_DELAY_Time:min,CARRIER_DELAY,WEATHER_DELAY,NAS_DELAY,SECURITY_DELAY,LATE_AIRCRAFT_DELAY\n';
+        var csv = 'ORIGIN,DEST,CARRIER,MONTH,PERCENTAGE,TOTAL_Flight,DELAY_Flight,TOTAL_DELAY_Time:min,CARRIER_DELAY,WEATHER_DELAY,NAS_DELAY,SECURITY_DELAY,LATE_AIRCRAFT_DELAY\n';
         download.forEach(function(row) {
             csv += row.join(',');
             csv += "\n";

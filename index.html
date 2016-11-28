@@ -194,6 +194,7 @@
 		<div id="carrierFilter" style="width:100%;"></div>
 		<p style = "margin-top: 40px;margin-bottom:0px;">Moth: </p>
 		<div id="monthFilter" style="width:100%;"></div>
+		<button id="submit2">Submit</button>
 	</div>
 	<div id = "generalInfo" style=" margin-right:45px;width:79%;float:right;display:inline-block;">
 	</div>
@@ -214,10 +215,9 @@
         });
     });
 	 
-	  var carrierName = ["All","American Airlines", "Alaska Airlines","JetBlue Airways","Delta Air","Frontier Airlines","Hawaiian Airlines","United Air Lines","Southwest Airlines"]
-	  //var code = ["All","AA","AS","B6","DL","F9","HA","UA","VX","WN"]
-	  
-	  var month = ["","January","Febrary","March","April","May","June","July","August","Semptember","October","November","December"]
+	    var carrierName = ["","American Airlines", "Alaska Airlines","JetBlue Airways","Delta Airlines","Frontier Airlines","Hawaiian Airlines","United Airlines", "Virgin America", "Southwest Airlines"];
+       var month = ["","January","February","March","April","May","June","July","August","September","October","November","December"];
+
 	  var origin = ["","Atlanta","Boston","Baltimore","Charlotte","Washington","Denver","Dallas/Fort","Detroit","Newark","Fort Lauderdale","Honolulu","Washington","Houston","New York","Las Vegas","Los Angeles","Orlando","Chicago","Miami","Minneapolis","Chicago","Portland","Philadelphia","Phoenix","San Diego","Seattle","San Francisco","Salt Lake City","Tampa"];
 	  
 	  var sCarrier = d3.select('#carrierF')
@@ -238,6 +238,7 @@
 
     var button = d3.select("#submit")
             .attr("onclick", "buildResult()");
+			
 	  
 	  
 	  
@@ -246,7 +247,7 @@
 	  var selectOrigin = d3.select('#originFilter')
 					 .append('select')
 						.attr('class','selectOrigin')
-					 .on('change',onchange)
+
 	  var originOptions = selectOrigin.selectAll('option')
 					.data(origin).enter()
 					.append('option')
@@ -254,7 +255,7 @@
 	  var selectDest = d3.select('#destFilter')
 					 .append('select')
 						.attr('class','selectDest')
-					 .on('change',onchange)
+					 
 	  var destOptions = selectDest.selectAll('option')
 					.data(origin).enter()
 					.append('option')
@@ -263,7 +264,7 @@
 	  var selectCarrier = d3.select('#carrierFilter')
 					 .append('select')
 						.attr('class','selectCarrier')
-					 .on('change',onchange)
+					
 	  var carrierOptions = selectCarrier.selectAll('option')
 					.data(carrierName).enter()
 					.append('option')
@@ -272,28 +273,162 @@
 	  var selectMonth = d3.select('#monthFilter')
 					 .append('select')
 						.attr('class','selectMonth')
-					 .on('change',onchange)
+					 
 	  var monthOptions = selectMonth.selectAll('option')
 					.data(month).enter()
 					.append('option')
 					 .text(function(d) {return d;});
 
-					 
+	  var button = d3.select("#submit2")
+            .attr("onclick", "getvalue()");	
+
+      			
 	
 	  
-	  function onchange() {
+	  function getvalue() {
+		d3.select("#generalInfo").html("")
+	 
 		carrierValue = d3.select('#carrierFilter').select('select').property('value')
+	
 		monthValue = d3.select('#monthFilter').select('select').property('value')
+	
 		originValue = d3.select('#originFilter').select('select').property('value')
 		destValue = d3.select('#destFilter').select('select').property('value')
-		if(carrierValue == "All"){
-			
-		} else{
-		fileName = carrierValue+ "_"+monthValue;
-		}
+		
+		
+		//debugger
+		var carrierInfor;
+        var monthInfor;
+        switch(carrierValue) {
+		
+            case "American Airlines":
+                carrierInfor = "AA";
+                break;
+            case "Alaska Airlines":
+                carrierInfor = "AS";
+                break;
+            case "JetBlue Airways":
+                carrierInfor = "B6";
+                break;
+            case "Delta Airlines":
+                carrierInfor = "DL";
+                break;
+            case "Frontier Airlines":
+                carrierInfor = "F9";
+                break;
+            case "Hawaiian Airlines":
+                carrierInfor = "HA";
+                break;
+            case "United Airlines":
+                carrierInfor = "UA";
+                break;
+            case "Virgin America":
+                carrierInfor = "VX";
+                break;
+            case "Southwest Airlines":
+                carrierInfor = "WN";
+                break;
+        }
+
+        switch(monthValue) {
+            case "January":
+                monthInfor = 1;
+                break;
+            case "February":
+                monthInfor = 2;
+                break;
+            case "March":
+                monthInfor = 3;
+                break;
+            case "April":
+                monthInfor = 4;
+                break;
+            case "May":
+                monthInfor = 5;
+                break;
+            case "June":
+                monthInfor = 6;
+                break;
+            case "July":
+                monthInfor = 7;
+                break;
+            case "August":
+                monthInfor = 8;
+                break;
+            case "September":
+                monthInfor = 9;
+                break;
+            case "October":
+                monthInfor = 10;
+                break;
+            case "November":
+                monthInfor = 11;
+                break;
+            case "December":
+                monthInfor = 12;
+                break;
+        }
+
+		
 		d3.select('body')
 			.append('p')
-			.text(carrierValue + ' is the last selected carrier.' + monthValue + ' is the last selected month.'  + originValue + 'is the last selected origin.')
+			
+			.text(carrierInfor + ' is the last selected carrier.' + monthInfor + ' is the last selected month.'  + originValue + 'is the last selected origin.')
+		//debugger
+		d3.csv("data/delay.csv", function(error, data) {
+		  if (error) throw error;
+		  
+		  var sortAscending = true;
+		  var table = d3.select('#generalInfo').append('table');
+		  var titles = d3.keys(data[0]);
+		  var result = [];
+		  data.forEach(function(d){
+			 if(d.CARRIER == carrierInfor && d.MONTH == monthInfor){
+				result.push(d);
+			 }
+		  
+		  });
+		  
+		
+		  var headers = table.append('thead').append('tr')
+		                   .selectAll('th')
+		                   .data(titles).enter()
+		                   .append('th')
+		                   .text(function (d) {
+			                    return d;
+		                    })
+		                   .on('click', function (d) {
+		                	   headers.attr('class', 'header');
+		                	   
+		                	   if (sortAscending) {
+		                	     rows.sort(function(a, b) { return b[d] < a[d]; });
+		                	     sortAscending = false;
+		                	     this.className = 'aes';
+		                	   } else {
+		                		 rows.sort(function(a, b) { return b[d] > a[d]; });
+		                		 sortAscending = true;
+		                		 this.className = 'des';
+		                	   } 
+		                	   
+		                   });
+		  
+		  var rows = table.append('tbody').selectAll('tr')
+		               .data(result).enter()
+		               .append('tr');
+		  rows.selectAll('td')
+		    .data(function (d) {
+		    	return titles.map(function (k) {
+		    		return { 'value': d[k], 'name': k};
+		    	});
+		    }).enter()
+		    .append('td')
+		    .attr('data-th', function (d) {
+		    	return d.name;
+		    })
+		    .text(function (d) {
+		    	return d.value;
+		    });
+	  });
 	};
 	
 	
@@ -349,52 +484,7 @@
 	
 	  
 	  
-	  d3.csv("data.csv", function(error, data) {
-		  if (error) throw error;
-		  
-		  var sortAscending = true;
-		  var table = d3.select('#generalInfo').append('table');
-		  var titles = d3.keys(data[0]);
-		
-		  var headers = table.append('thead').append('tr')
-		                   .selectAll('th')
-		                   .data(titles).enter()
-		                   .append('th')
-		                   .text(function (d) {
-			                    return d;
-		                    })
-		                   .on('click', function (d) {
-		                	   headers.attr('class', 'header');
-		                	   
-		                	   if (sortAscending) {
-		                	     rows.sort(function(a, b) { return b[d] < a[d]; });
-		                	     sortAscending = false;
-		                	     this.className = 'aes';
-		                	   } else {
-		                		 rows.sort(function(a, b) { return b[d] > a[d]; });
-		                		 sortAscending = true;
-		                		 this.className = 'des';
-		                	   } 
-		                	   
-		                   });
-		  
-		  var rows = table.append('tbody').selectAll('tr')
-		               .data(data).enter()
-		               .append('tr');
-		  rows.selectAll('td')
-		    .data(function (d) {
-		    	return titles.map(function (k) {
-		    		return { 'value': d[k], 'name': k};
-		    	});
-		    }).enter()
-		    .append('td')
-		    .attr('data-th', function (d) {
-		    	return d.name;
-		    })
-		    .text(function (d) {
-		    	return d.value;
-		    });
-	  });
+	  
 	  
 	   // After user click submit button, find the right file and compute average delay
     function buildResult() {
