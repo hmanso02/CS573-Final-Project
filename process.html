@@ -8,8 +8,30 @@
 
 <body>
 <script>
-
+//	timedMsg();
+//	function timedMsg(){
+//	
+//		var download = setTimeout("download_csv()",300000)
+//	}
     var download = [];
+	var code = ["AS","B6","DL","F9","HA","UA","VX","WN"]
+        //var filePath = "data/filtered_data/" + carrier + "/" + carrier +  "_" + month + ".csv";
+        var filePath=[];
+		var downloadFileName=[];
+	
+		function generate(){
+			for(var i = 0; i < code.length; i++){
+			    
+				for(var j = 1; j <=12;j++){
+					//debugger
+					filePath.push ("data/filtered_data/" + code[i] + "/" +code[i]+"_" + j +".csv");
+					console.log(filePath.length)
+					downloadFileName.push ("data/filtered_data/" + code[i] + "/" +code[i]+"_" + j +"_delay"+".csv");
+				}
+			}
+			
+		}
+		generate();
     d3.json("airport.json", function(error, airports) {
         if (error) throw error;
 
@@ -28,11 +50,19 @@
                 }
             }
         };
+		
+		
+		var output = [];
+		
+		function loadFile(singlefilepath){
+			
+		
+		
+        d3.csv(singlefilepath, function(data) {
+			
+			//console.log(singlefilepath)
 
-
-        d3.csv("filtered_data/AA/AA_1.csv", function(data) {
-
-            var output = [];
+            
             for (var i = 0; i < 30; i++) {
                 output[i] = [];
                 for (var j = 0; j < 30; j++) {
@@ -56,9 +86,11 @@
                 d.NAS_DELAY = +d.NAS_DELAY;
                 d.SECURITY_DELAY = +d.SECURITY_DELAY;
                 d.LATE_AIRCRAFT_DELAY = +d.LATE_AIRCRAFT_DELAY;
+				d.MONTH = d.MONTH;
 				
 
                 output[airportIndex(d.ORIGIN)][airportIndex(d.DEST)].total_count++;
+				output[airportIndex(d.ORIGIN)][airportIndex(d.DEST)].month = d.MONTH;
                 if(d.ARR_DELAY_NEW > 0) {
                     output[airportIndex(d.ORIGIN)][airportIndex(d.DEST)].delay_count++;
                     output[airportIndex(d.ORIGIN)][airportIndex(d.DEST)].carrier_delay += d.CARRIER_DELAY;
@@ -72,16 +104,31 @@
                 for (var q = 0; q < 30; q++) {
                     if (output[p][q].total_count != 0) {
                         var total_delay = output[p][q].carrier_delay + output[p][q].weather_delay + output[p][q].nas_delay + output[p][q].security_delay + output[p][q].late_aircraft_delay;
-                        download.push([indexAirport(p), indexAirport(q), output[p][q].total_count, output[p][q].delay_count, total_delay, output[p][q].carrier_delay, output[p][q].weather_delay, output[p][q].nas_delay, output[p][q].security_delay, output[p][q].late_aircraft_delay]);
+                        var percentage = output[p][q].delay_count/output[p][q].total_count;
+						
+						download.push([indexAirport(p), indexAirport(q),output[p][q].month,percentage, output[p][q].total_count, output[p][q].delay_count, total_delay, output[p][q].carrier_delay, output[p][q].weather_delay, output[p][q].nas_delay, output[p][q].security_delay, output[p][q].late_aircraft_delay]);
                     }
                 }
             }
+			if(filePath.length>0){
+			console.log(filePath.length)
+	
+				loadFile(filePath.pop())
+				
+			}else{
+				download_csv()
+			}
+			
         });
+		
+		}
+		loadFile(filePath.pop());
 
+		
     });
 
     function download_csv() {
-        var csv = 'ORIGIN,DEST,TOTAL_COUNT,DELAY_COUNT,TOTAL_DELAY,CARRIER_DELAY,WEATHER_DELAY,NAS_DELAY,SECURITY_DELAY,LATE_AIRCRAFT_DELAY\n';
+        var csv = 'ORIGIN,DEST,MONTH,PERCENTAGE,TOTAL_Flight,DELAY_Flight,TOTAL_DELAY_Time:min,CARRIER_DELAY,WEATHER_DELAY,NAS_DELAY,SECURITY_DELAY,LATE_AIRCRAFT_DELAY\n';
         download.forEach(function(row) {
             csv += row.join(',');
             csv += "\n";
@@ -91,13 +138,13 @@
         var hiddenElement = document.createElement('a');
         hiddenElement.href = 'data:text/csv;charset=utf-8,' + encodeURI(csv);
         hiddenElement.target = '_blank';
-        hiddenElement.download = 'AA_1_delay.csv';
+        hiddenElement.download = '/delay.csv';
         hiddenElement.click();
     }
-
+	
 </script>
 
-<button onclick="download_csv()">Download flight delay CSV</button>
+
 
 </body>
 </html>
