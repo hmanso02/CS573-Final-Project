@@ -6,7 +6,7 @@
 	<script src="https://d3js.org/d3.v4.js"></script>
     <script src="https://d3js.org/topojson.v1.min.js"></script>
 	
-	<title>D3.js Sortable & Responsive Table</title>
+	<title>Flight Viz</title>
 	
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	
@@ -924,7 +924,7 @@ THIS IS THE CODE FOR THE PCP
           .on("mouseover", function(d) {   
             var foo = d3.select(this);
             timeout = setTimeout(function() {
-              foo.style("stroke", "red");
+              // foo.style("stroke", "red");
             }, 500) 
             div.transition()    
                 .duration(200)    
