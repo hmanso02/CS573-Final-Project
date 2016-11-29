@@ -667,7 +667,7 @@
 		  var titles = d3.keys(data[0]);
 		  var result = [];
 		  data.forEach(function(d){
-			 if(d.Carrier == carrierInfor && d.Month == monthInfor&& d.Origin ==originInfor && d.Destination == destInfor ){
+			 if(d.Month == monthInfor&& d.Origin ==originInfor && d.Destination == destInfor ){
 				
 				
 				result.push(d);
@@ -720,7 +720,7 @@
 	
 	// draw map
     var width = 650, height = 550, width1 = 400, radius1 = 3, radius2 = 5;
-    var margin = {top: 60, right: 20, bottom: 20, left: 60};
+    var margin = {top: 60, right: 20, bottom: 20, left: 100};
 
     var map = d3.select("#drawMap").append("svg")
             .attr("width", width)
@@ -767,10 +767,7 @@
             }
         }
     };
-	
-	  
-	  
-	  
+
 	  
 	   // After user click submit button, find the right file and compute average delay
     function buildResult() {
