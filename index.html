@@ -192,11 +192,12 @@
 		<div id="destFilter" style="width:100%;"></div>
 		<p style = "margin-top: 40px;margin-bottom:0px;">Carrier: </p>
 		<div id="carrierFilter" style="width:100%;"></div>
-		<p style = "margin-top: 40px;margin-bottom:0px;">Moth: </p>
+		<p style = "margin-top: 40px;margin-bottom:0px;">Month: </p>
 		<div id="monthFilter" style="width:100%;"></div>
 		<button id="submit2">Submit</button>
 	</div>
 	<div id = "generalInfo" style=" margin-right:45px;width:79%;float:right;display:inline-block;">
+	   
 	</div>
 	</div>
 	
@@ -218,7 +219,7 @@
 	    var carrierName = ["","American Airlines", "Alaska Airlines","JetBlue Airways","Delta Airlines","Frontier Airlines","Hawaiian Airlines","United Airlines", "Virgin America", "Southwest Airlines"];
        var month = ["","January","February","March","April","May","June","July","August","September","October","November","December"];
 
-	  var origin = ["","Atlanta","Boston","Baltimore","Charlotte","Washington","Denver","Dallas/Fort","Detroit","Newark","Fort Lauderdale","Honolulu","Washington","Houston","New York","Las Vegas","Los Angeles","Orlando","Chicago","Miami","Minneapolis","Chicago","Portland","Philadelphia","Phoenix","San Diego","Seattle","San Francisco","Salt Lake City","Tampa"];
+	  var origin = ["","Atlanta","Boston","Baltimore","Charlotte","Washington: DCA","Denver","Dallas/Fort","Detroit","Newark","Fort Lauderdale","Honolulu","Washington: IAD","Houston","New York: JFK","New York: LGA","Las Vegas","Los Angeles","Orlando","Chicago","Miami","Minneapolis","Chicago","Portland","Philadelphia","Phoenix","San Diego","Seattle","San Francisco","Salt Lake City","Tampa"];
 	  
 	  var sCarrier = d3.select('#carrierF')
             .append('select')
@@ -281,8 +282,44 @@
 
 	  var button = d3.select("#submit2")
             .attr("onclick", "getvalue()");	
+			
 
-      			
+      function initialTable(){
+	  
+		d3.csv("data/delay.csv", function(error, data) {
+		  if (error) throw error;
+		  
+		  var sortAscending = true;
+		  var table = d3.select('#generalInfo').append('table');
+		  var titles = d3.keys(data[0]);
+		  var headers = table.append('thead').append('tr')
+		                   .selectAll('th')
+		                   .data(titles).enter()
+		                   .append('th')
+		                   .text(function (d) {
+			                    return d;
+		                    })
+		                   .on('click', function (d) {
+		                	   headers.attr('class', 'header');
+		                	   
+		                	   if (sortAscending) {
+		                	     rows.sort(function(a, b) { return b[d] < a[d]; });
+		                	     sortAscending = false;
+		                	     this.className = 'aes';
+		                	   } else {
+		                		 rows.sort(function(a, b) { return b[d] > a[d]; });
+		                		 sortAscending = true;
+		                		 this.className = 'des';
+		                	   } 
+		                	   
+		                   });
+		  
+		 
+
+	  });
+	  
+	  }
+	  initialTable()
 	
 	  
 	  function getvalue() {
@@ -299,6 +336,205 @@
 		//debugger
 		var carrierInfor;
         var monthInfor;
+		var originInfor;
+		var destInfor;
+		 switch(originValue) {
+		
+            case "Atlanta":
+                originInfor = "ATL";
+                break;
+            case "Boston":
+                originInfor = "BOS";
+                break;
+            case "Baltimore":
+                originInfor = "BWI";
+                break;
+            case "Charlotte":
+                originInfor = "CLT";
+                break;
+            case "Washington: DCA":
+                originInfor = "DCA";
+                break;
+			case "Washington: DCA":
+                originInfor = "DCA";
+                break;
+            case "Denver":
+                originInfor = "DEN";
+                break;
+            case "Dallas/Fort":
+                originInfor = "DFW";
+                break;
+            case "Detroit":
+                originInfor = "DTW";
+                break;
+            case "Newark":
+                originInfor = "EWR";
+                break;
+			case "Fort Lauderdale":
+                originInfor = "FLL";
+                break;
+            case "Honolulu":
+                originInfor = "HNL";
+                break;
+            case "Houston":
+                originInfor = "IAH";
+                break;
+            case "New York: JFK":
+                originInfor = "JFK";
+                break;
+            case "Las Vegas":
+                originInfor = "LAS";
+                break;
+            case "Los Angeles":
+                originInfor = "LAX";
+                break;
+			case "Orlando":
+                originInfor = "MCO";
+                break;
+            case "Chicago":
+                originInfor = "MDW";
+                break;
+            case "Washington: IAD":
+                originInfor = "IAD";
+                break;
+            case "New York: LGA":
+                originInfor = "LGA";
+                break;
+            case "Miami":
+                originInfor = "MIA";
+                break;
+            case "Minneapolis":
+                originInfor = "MSP";
+                break;
+			case "Chicago":
+                originInfor = "ORD";
+                break;
+            case "Portland":
+                originInfor = "PDX";
+                break;
+            case "Philadelphia":
+                originInfor = "PHL";
+                break;
+            case "Phoenix":
+                originInfor = "PHX";
+                break;
+            case "San Diego":
+                originInfor = "SAN";
+                break;
+            case "Seattle":
+                originInfor = "SEA";
+                break;
+			case "San Francisco":
+                originInfor = "SFO";
+                break;
+            case "Salt Lake City":
+                originInfor = "SLC";
+                break;
+            case "Tampa":
+                originInfor = "29";
+                break;
+            
+        }
+		switch(destValue) {
+		
+            case "Atlanta":
+                destInfor = "ATL";
+                break;
+            case "Boston":
+                destInfor = "BOS";
+                break;
+            case "Baltimore":
+                destInfor = "BWI";
+                break;
+            case "Charlotte":
+                destInfor = "CLT";
+                break;
+            case "Washington: DCA":
+                destInfor = "DCA";
+                break;
+			case "Washington: DCA":
+                destInfor = "DCA";
+                break;
+            case "Denver":
+                destInfor = "DEN";
+                break;
+            case "Dallas/Fort":
+                destInfor = "DFW";
+                break;
+            case "Detroit":
+                destInfor = "DTW";
+                break;
+            case "Newark":
+                destInfor = "EWR";
+                break;
+			case "Fort Lauderdale":
+                destInfor = "FLL";
+                break;
+            case "Honolulu":
+                destInfor = "HNL";
+                break;
+            case "Houston":
+                destInfor = "IAH";
+                break;
+            case "New York: JFK":
+                destInfor = "JFK";
+                break;
+            case "Las Vegas":
+                destInfor = "LAS";
+                break;
+            case "Los Angeles":
+                destInfor = "LAX";
+                break;
+			case "Orlando":
+                destInfor = "MCO";
+                break;
+            case "Chicago":
+                destInfor = "MDW";
+                break;
+            case "Washington: IAD":
+                destInfor = "IAD";
+                break;
+            case "New York: LGA":
+                destInfor = "LGA";
+                break;
+            case "Miami":
+                destInfor = "MIA";
+                break;
+            case "Minneapolis":
+                destInfor = "MSP";
+                break;
+			case "Chicago":
+                destInfor = "ORD";
+                break;
+            case "Portland":
+                destInfor = "PDX";
+                break;
+            case "Philadelphia":
+                destInfor = "PHL";
+                break;
+            case "Phoenix":
+                destInfor = "PHX";
+                break;
+            case "San Diego":
+                destInfor = "SAN";
+                break;
+            case "Seattle":
+                destInfor = "SEA";
+                break;
+			case "San Francisco":
+                destInfor = "SFO";
+                break;
+            case "Salt Lake City":
+                destInfor = "SLC";
+                break;
+            case "Tampa":
+                destInfor = "TPA";
+                break;
+            
+        }
+		
+		
+		
         switch(carrierValue) {
 		
             case "American Airlines":
@@ -370,11 +606,7 @@
         }
 
 		
-		d3.select('body')
-			.append('p')
-			
-			.text(carrierInfor + ' is the last selected carrier.' + monthInfor + ' is the last selected month.'  + originValue + 'is the last selected origin.')
-		//debugger
+	//debugger
 		d3.csv("data/delay.csv", function(error, data) {
 		  if (error) throw error;
 		  
@@ -383,7 +615,9 @@
 		  var titles = d3.keys(data[0]);
 		  var result = [];
 		  data.forEach(function(d){
-			 if(d.CARRIER == carrierInfor && d.MONTH == monthInfor){
+			 if(d.Carrier == carrierInfor && d.Month == monthInfor&& d.Origin ==originInfor && d.Destination == destInfor ){
+				
+				
 				result.push(d);
 			 }
 		  

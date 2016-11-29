@@ -133,7 +133,7 @@
     });
 
     function download_csv() {
-        var csv = 'ORIGIN,DEST,CARRIER,MONTH,PERCENTAGE,TOTAL_Flight,DELAY_Flight,TOTAL_DELAY_Time:min,CARRIER_DELAY,WEATHER_DELAY,NAS_DELAY,SECURITY_DELAY,LATE_AIRCRAFT_DELAY\n';
+        var csv = 'Origin,Destination,Carrier,Month,Percentage,Total Flight,Delay Flight,Total Delay Time:min,Carrier Delay,Weather Delay,NAS Delay,Security Delay,Aircraft Delay\n';
         download.forEach(function(row) {
             csv += row.join(',');
             csv += "\n";
