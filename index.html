@@ -20,14 +20,21 @@
 	   font: 14px/1.4 Georgia, Serif; 
      }
     #page-wrap {
-	  margin: 50px;
+	    margin: 50px;
     }
     p {
-	 margin: 20px 0; 
+		margin: 20px 0; 
     }
 	
-	
-
+	h1 {
+		font-family: Calibri, Candara, Segoe, "Segoe UI", Optima, Arial, sans-serif;
+		font-size: 40px;
+		text-align: center;
+	}
+	h2 {
+		font-family: Calibri, Candara, Segoe, "Segoe UI", Optima, Arial, sans-serif;
+		margin-left: 10px;
+	}
 	/* 
 	Generic Styling, for Desktops/Laptops 
 	*/
@@ -176,12 +183,12 @@
 	cursor: move;
 	-webkit-text-stroke: 1px #fff;
 	 color: black;
-	 text-shadow:
+/*	 text-shadow:
 	     2px 2px 0 #fff,
 	     -2px -2px 0 #fff,  
 	     2px -2px 0 #fff,
 	     -2px 2px 0 #fff,
-	     2px 2px 0 #fff;
+	     2px 2px 0 #fff;*/
 	}
 	div.tooltip { 
 	    position: absolute;     
@@ -196,8 +203,11 @@
 	}
 	.node {
 	  box-sizing: border-box;
-	  position: absolute;
 	  overflow: hidden;
+         position: absolute;
+         text-indent: 2px;
+         text-align: center;
+         vertical-align: middle;
 	}
 
 	.node-label {
@@ -217,7 +227,12 @@
 </head>
 
 <body>
+<h1>Visualizing Flight Delay Data</h1>
+<h2 style="text-align: center; color: steelblue">By Huayan Sun, Mei Yang and Hamid Mansoor </h2>
+<br>
+<h2>The Average On-Time Arrivals for Major Carriers For 2010 - 2015 </h2>
 <div id="graph" style="margin-top: 45px; margin-left:45px; margin-right: 45px; width:100%; height: 500px;"></div>
+<h2>The Average Flight Delay Between Major Airports, For Major Carriers </h2>
 
 <div id = "map" style="margin-top: 45px; margin-left:45px; margin-right: 45px; width:auto">
     <span>Carrier</span>
@@ -230,14 +245,9 @@
 <div id="drawMap">
 
  </div>
-
+	<h2>Filterable Flight Delay Information Table</h2>
 	<div id="page-wrap" style="margin-left:45px; margin-right: 45px; width:auto">
-
-		<h1>Flight Delay Information Check</h1>
-    
-	
 	</div>
-	
 	<div id ="table" style = "display:inline-block;">
 	<div id = "filter" style="margin-left:45px;width: 10%;display:inline-block;"><br/>
 		<p style = "margin-top: -20px;margin-bottom:0px;">Origin: </p>
@@ -253,7 +263,10 @@
 	<div id = "generalInfo" style=" margin-right:45px;width:79%;float:right;display:inline-block;">
 	   
 	</div>
+
 </div>
+<br>
+	<h2>Cancellation Data For The Major Airlines For 2010 - 2015 </h2>
     <div id="treemap" style="width: 100%; height: 600px; position: relative;margin-left:45px; margin-right: 45px;  margin-top: 45px;"></div>
 	
 	<script >
@@ -1140,23 +1153,29 @@ THIS IS THE CODE FOR THE PCP
             y[d] = d3.scaleLinear()
                      .domain([70, 100]).range([h, 0]));
         }));
-        background = svg.append("svg:g")
-          .attr("class", "background")
-          .selectAll("path")
-          .data(carrier_data)
-          .enter().append("svg:path")
-          .attr("d", path);
+        var path = function(d) {
+          return line(dimensions.map(function(p) {
+          	if (d[p] == ""){
+          	return [280,215];}
+            if (p != "Name" ){
+            return [position(p), y[p](d[p])];}
+          }));
+        }
         foreground = svg.append("svg:g")
           .attr("class", "foreground")
           .selectAll("path")
           .data(carrier_data)
           .enter().append("svg:path")
+          .attr("class", "lines")
           .attr("d", path)
           .on("mouseover", function(d) {   
+          	var foo1 = d3.selectAll(".lines");
+            foo1.style("stroke", 'grey');
+            foo1.style("opacity", '0.2');
             var foo = d3.select(this);
-            timeout = setTimeout(function() {
-              // foo.style("stroke", "red");
-            }, 500) 
+            foo.style("stroke-width", '5px');
+            foo.style("stroke", 'red');
+            foo.style("opacity", '0.9');
             div.transition()    
                 .duration(200)    
                 .style("opacity", .9);             
@@ -1165,7 +1184,12 @@ THIS IS THE CODE FOR THE PCP
                 .style("top", (d3.event.pageY - 28) + "px");  
             })          
           .on("mouseout", function(d) {   
-                      clearTimeout(timeout)
+              var foo = d3.select(this);
+              var foo1 = d3.selectAll(".lines");
+              foo.style("stroke-width", '1.5px');
+              foo.style("stroke", 'steelblue');
+              foo1.style("stroke", 'steelblue');
+              foo1.style("opacity", '0.9');
               div.transition()    
                   . duration(500)    
                   .style("opacity", 0); 
@@ -1185,7 +1209,6 @@ THIS IS THE CODE FOR THE PCP
             for (i = 0; i < carrier_data.length; i++){
               ticks.push(carrier_data[i][d]);
               names.push(carrier_data[i]["Name"])
-              console.log(names)
             }
 
             if (d == "2010_ontime"){
@@ -1193,13 +1216,13 @@ THIS IS THE CODE FOR THE PCP
             }
             else {
             d3.select(this).call(d3.axisRight(y[d]).tickValues(ticks));}
-          })
-          .append("svg:text")
-          .attr("text-anchor", "middle")
-          .attr("y", -20)
-          .text(function(d){
-            return d;
           });
+        g.append("text")
+          .attr("text-anchor", "middle")
+          .attr("x", -20)
+    	  .attr("y", 10)
+          .attr("stroke", "3px")
+          .text(function (d){return d.split("_")[0];});
         function position(d) {
           var v = dragging[d];
           return v == null ? x(d) : v;
@@ -1220,48 +1243,118 @@ THIS IS THE CODE FOR THE PCP
 THIS IS THE CODE FOR THE TREEMAP
 *************************************************************************************************************************************************/
 
+
       var width = 760,
           height = 550;
-
       var format = d3.format(",d");
-
       var color = d3.scaleOrdinal()
           .range(d3.schemeCategory10
               .map(function(c) { c = d3.rgb(c); c.opacity = 0.6; return c; }));
-
       var stratify = d3.stratify()
           .parentId(function(d) { return d.id.substring(0, d.id.lastIndexOf(".")); });
-
       var treemap = d3.treemap()
           .size([width, height])
           .padding(1)
           .round(true);
-
       d3.csv("data/cancellationData.csv", type, function(error, data) {
         if (error) throw error;
-
         var root = stratify(data)
             .sum(function(d) { return d.value; })
             .sort(function(a, b) { return b.height - a.height || b.value - a.value; });
-
         treemap(root);
-
         d3.select("#treemap")
           .selectAll(".node")
           .data(root.leaves())
           .enter().append("div")
             .attr("class", "node")
-            .attr("title", function(d) { return d.id + "\n" + format(d.value); })
+            .attr("title", function(d) {
+            	var carrierInfor =  "";
+				var carrierValue = d.id.split(".")[1];
+				switch(carrierValue) {
+		            case "AA":
+		                carrierInfor = "American Airlines";
+		                break;
+		            case "AS":
+		                carrierInfor = "Alaska Airlines";
+		                break;
+		            case "B6":
+		                carrierInfor = "JetBlue Airways";
+		                break;
+		            case "DL":
+		                carrierInfor = "Delta Airlines";
+		                break;
+		            case "F9":
+		                carrierInfor = "Frontier Airlines";
+		                break;
+		            case "HA":
+		                carrierInfor = "Hawaiian Airlines";
+		                break;
+		            case "UA":
+		                carrierInfor = "United Airlines";
+		                break;
+		            case "VX":
+		                carrierInfor = "Virgin America";
+		                break;
+		            case "WN":
+		                carrierInfor = "Southwest Airlines";
+		                break;
+		        } 
+             return carrierInfor + "\n" + format(d.value); })
             .style("left", function(d) { return d.x0 +"px"; })
             .style("top", function(d) { return d.y0 + "px"; })
             .style("width", function(d) { return d.x1 - d.x0 + "px"; })
             .style("height", function(d) { return d.y1 - d.y0 + "px"; })
             .style("background", function(d) { while (d.depth > 1) d = d.parent; return color(d.id); })
+            .on("mouseover", function(d) {   
+	          	var foo1 = d3.selectAll(".node");
+	            foo1.style("opacity", '0.7');
+	            var foo = d3.select(this);
+	            foo.style("opacity", '2');
+	            
+            }) 
+            .on("mouseout", function(d) {   
+	          	var foo1 = d3.selectAll(".node");
+	            foo1.style("opacity", '1');
+	            // var foo = d3.select(this);
+	            // foo.style("opacity", '2');
+	            
+            })  
           .append("div")
             .attr("class", "node-label")
-            .text(function(d) { code =  d.id.substring(d.id.lastIndexOf(".") + 1).split(/(?=[A-Z][^A-Z])/g).join("\n"); 
+            .text(function(d) { code =  d.id.substring(d.id.lastIndexOf(".") + 1).split(/(?=[A-Z][^A-Z])/g).join("\n");
+            					var carrierInfor =  "";
+            					var carrierValue = d.id.split(".")[1];
+            					switch(carrierValue) {
+						            case "AA":
+						                carrierInfor = "American Airlines";
+						                break;
+						            case "AS":
+						                carrierInfor = "Alaska Airlines";
+						                break;
+						            case "B6":
+						                carrierInfor = "JetBlue Airways";
+						                break;
+						            case "DL":
+						                carrierInfor = "Delta Airlines";
+						                break;
+						            case "F9":
+						                carrierInfor = "Frontier Airlines";
+						                break;
+						            case "HA":
+						                carrierInfor = "Hawaiian Airlines";
+						                break;
+						            case "UA":
+						                carrierInfor = "United Airlines";
+						                break;
+						            case "VX":
+						                carrierInfor = "Virgin America";
+						                break;
+						            case "WN":
+						                carrierInfor = "Southwest Airlines";
+						                break;
+						        } 
                                 if (code == "cancelA"){
-                                  code = "Carrier";
+                                  code = "Carrier: \n" + carrierInfor;
                                 } else  if(code == "cancelB"){
                                   code = "Weather";
                                 } else  if(code == "cancelC"){
@@ -1275,11 +1368,11 @@ THIS IS THE CODE FOR THE TREEMAP
             .attr("class", "node-value")
             .text(function(d) { return format(d.value); });
       });
-
       function type(d) {
         d.value = +d.value;
         return d;
-      }
+      } 
+
      
 	</script>
 </body>
