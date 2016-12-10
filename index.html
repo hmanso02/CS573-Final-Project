@@ -262,17 +262,19 @@
 		<div id="originFilter" style="width:100%; "></div>
 		<p style = "margin-top: 40px;margin-bottom:0px;">Destination: </p>
 		<div id="destFilter" style="width:100%;"></div>
-		<p style = "margin-top: 40px;margin-bottom:0px;">Carrier: </p>
-		<div id="carrierFilter" style="width:100%;"></div>
+		
 		<p style = "margin-top: 40px;margin-bottom:0px;">Month: </p>
 		<div id="monthFilter" style="width:100%;"></div>
-		<button id="submit2">Submit</button>
+		<button id="submit2" style = "margin-top: 40px; width :150px">Submit</button>
 	</div>
 	<div id = "generalInfo" style=" margin-right:45px;width:79%;float:right;display:inline-block;">
 	   
 	</div>
 
 </div>
+
+<div id="piechart" style="margin-left:45px; margin-right: 45px; width:auto">
+	</div>
 <br>
 	<h2>Cancellation Data For The Major Airlines For 2010 - 2015 </h2>
     <div id="treemap" style="width: 100%; height: 600px; position: relative;margin-left:45px; margin-right: 45px;  margin-top: 45px;"></div>
@@ -297,7 +299,9 @@
       var carrier_selected;
       var month_selected = "Jan";
       var origin_selected = null;
-      var result = [];
+	  var result = [];
+	  var show = [];
+	  var piedata = [];
 
 
 	  var sCarrier = d3.select('#carrierF')
@@ -370,7 +374,10 @@
 		  
 		  var sortAscending = true;
 		  var table = d3.select('#generalInfo').append('table');
-		  var titles = d3.keys(data[0]);
+		  var titles = d3.keys(data[0]).filter(function(key){
+		  
+		  return key != "Origin" && key !="Destination" && key !="Month";
+		  });
 		  var headers = table.append('thead').append('tr')
 		                   .selectAll('th')
 		                   .data(titles).enter()
@@ -404,7 +411,7 @@
 	  function getvalue() {
 		d3.select("#generalInfo").html("")
 	 
-		carrierValue = d3.select('#carrierFilter').select('select').property('value')
+		//carrierValue = d3.select('#carrierFilter').select('select').property('value')
 	
 		monthValue = d3.select('#monthFilter').select('select').property('value')
 	
@@ -614,36 +621,7 @@
 		
 		
 		
-        switch(carrierValue) {
-		
-            case "American Airlines":
-                carrierInfor = "AA";
-                break;
-            case "Alaska Airlines":
-                carrierInfor = "AS";
-                break;
-            case "JetBlue Airways":
-                carrierInfor = "B6";
-                break;
-            case "Delta Airlines":
-                carrierInfor = "DL";
-                break;
-            case "Frontier Airlines":
-                carrierInfor = "F9";
-                break;
-            case "Hawaiian Airlines":
-                carrierInfor = "HA";
-                break;
-            case "United Airlines":
-                carrierInfor = "UA";
-                break;
-            case "Virgin America":
-                carrierInfor = "VX";
-                break;
-            case "Southwest Airlines":
-                carrierInfor = "WN";
-                break;
-        }
+
 
         switch(monthValue) {
             case "January":
@@ -691,18 +669,67 @@
 		  
 		  var sortAscending = true;
 		  var table = d3.select('#generalInfo').append('table');
-		  var titles = d3.keys(data[0]);
+		  var titles = d3.keys(data[0]).filter(function(key){
+		  
+		  return key != "Origin" && key !="Destination" && key != "Month";
+		  });
 		  var result = [];
 		  data.forEach(function(d){
 			 if(d.Month == monthInfor&& d.Origin ==originInfor && d.Destination == destInfor ){
-				
 				
 				result.push(d);
 			 }
 		  
 		  });
+		  show = result.filter(function(key){
 		  
+		  return key != "Origin" && key !="Destination" && key != "Month";
+		  });
+		  
+
 		
+		for(i = 0; i < show.length;i++ ){
+			piedata.push([show[i]["NAS Delay"],show[i]["Security Delay"],show[i]["Aircraft Delay"],show[i]["Weather Delay"],show[i]["Carrier Delay"]])
+		
+		}
+		console.log(piedata)
+		
+		
+		
+//		   piedata = result.filter(function(key){
+//		  
+//		  return key != "Origin" && key !="Destination" && key != "Month" && key !="Percentage" && key != "Total Flight" && key != "Delay Flight" && key != "Total Delay Time:min";
+//		  });
+//		  
+		  
+		  
+		  //&& key =="Weather Delay" && key == "NAS Delay" &&key =="Security Delay" && key == "Aircraft Delay"
+
+		  
+	
+	var m = 10,
+    r = 100,
+    z = d3.scaleOrdinal(d3.schemeCategory20c);;
+
+
+var svg = d3.select("#piechart").selectAll("svg")
+    .data(piedata)
+  .enter().append("svg")
+    .attr("width", (r + m) * 2)
+    .attr("height", (r + m) * 2)
+  .append("g")
+    .attr("transform", "translate(" + (r + m) + "," + (r + m) + ")");
+
+svg.selectAll("path")
+    .data(d3.pie())
+  .enter().append("path")
+    .attr("d", d3.arc()
+        .innerRadius(r / 2)
+        .outerRadius(r))
+    .style("fill", function(d, i) { return z(i); });
+	
+		
+
 		  var headers = table.append('thead').append('tr')
 		                   .selectAll('th')
 		                   .data(titles).enter()
@@ -726,7 +753,7 @@
 		                   });
 		  
 		  var rows = table.append('tbody').selectAll('tr')
-		               .data(result).enter()
+		               .data(show).enter()
 		               .append('tr');
 		  rows.selectAll('td')
 		    .data(function (d) {
@@ -742,7 +769,16 @@
 		    	return d.value;
 		    });
 	  });
+	  
+	  
+	  	// pie chart
+		
+	
 	};
+
+	
+	
+	
 
       // add carrier select
       var carrier_list = d3.select('#map')
