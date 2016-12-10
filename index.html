@@ -94,6 +94,22 @@
             stroke: #ccc;
             stroke-linejoin: round;
         }
+
+    #map {
+        margin: 30px 30px 0px 30px;
+    }
+
+    #map span {
+        margin-right: 20px;
+        font-size: 15px;
+    }
+
+    .track {
+        stroke-linecap: round;
+        stroke: #000;
+        stroke-opacity: 0.3;
+        stroke-width: 10px;
+    }
 		
 	
 	/* 
@@ -234,15 +250,7 @@
 <div id="graph" style="margin-top: 45px; margin-left:45px; margin-right: 45px; width:100%; height: 500px;"></div>
 <h2>The Average Flight Delay Between Major Airports, For Major Carriers </h2>
 
-<div id = "map" style="margin-top: 45px; margin-left:45px; margin-right: 45px; width:auto">
-    <span>Carrier</span>
-    <div id="carrierF" style="display:inline-block;margin-right: 45px"></div>
-    <span>Month</span>
-    <div id="monthF" style=" display:inline-block;margin-right: 45px"></div>
-    <button id="submit">Check Delay Information</button>
-	
-</div>
-<div id="drawMap">
+<div id="map" style="margin-bottom: 45px;"></div>
 
  </div>
 	<h2>Filterable Flight Delay Information Table</h2>
@@ -281,11 +289,17 @@
         });
     });
 	 
-	    var carrierName = ["","American Airlines", "Alaska Airlines","JetBlue Airways","Delta Airlines","Frontier Airlines","Hawaiian Airlines","United Airlines", "Virgin America", "Southwest Airlines"];
-       var month = ["","January","February","March","April","May","June","July","August","September","October","November","December"];
-
+      var carrierName = ["","American Airlines", "Alaska Airlines","JetBlue Airways","Delta Airlines","Frontier Airlines","Hawaiian Airlines","United Airlines", "Virgin America", "Southwest Airlines"];
+      var month = ["","January","February","March","April","May","June","July","August","September","October","November","December"];
+      var month1 = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sept", "Oct", "Nov", "Dec"];
 	  var origin = ["","Atlanta","Boston","Baltimore","Charlotte","Washington: DCA","Denver","Dallas/Fort","Detroit","Newark","Fort Lauderdale","Honolulu","Washington: IAD","Houston","New York: JFK","New York: LGA","Las Vegas","Los Angeles","Orlando","Chicago","Miami","Minneapolis","Chicago","Portland","Philadelphia","Phoenix","San Diego","Seattle","San Francisco","Salt Lake City","Tampa"];
-	  
+      var color1 = d3.scaleOrdinal(d3.schemeCategory10);
+      var carrier_selected;
+      var month_selected = "Jan";
+      var origin_selected = null;
+      var result = [];
+
+
 	  var sCarrier = d3.select('#carrierF')
             .append('select')
             .attr('class','select1');
@@ -729,17 +743,29 @@
 		    });
 	  });
 	};
-	
+
+      // add carrier select
+      var carrier_list = d3.select('#map')
+              .selectAll('span')
+              .data(carrierName)
+              .enter()
+              .append('span')
+              .attr('id', function(d) { return d; })
+              .text(function(d) { return d; })
+              .on('click', select_carrier)
+              .style("color", color1)
+              .style("font-size", "14px");
 	
 	// draw map
-    var width = 650, height = 550, width1 = 400, radius1 = 3, radius2 = 5;
-    var margin = {top: 60, right: 20, bottom: 20, left: 100};
+    var width2 = 650, height1 = 400, width1 = 400, height2 = 500, radius1 = 3, radius2 = 5;
+    var margin = {top: 60, right: 20, bottom: 20, left: 80};
 
-    var map = d3.select("#drawMap").append("svg")
-            .attr("width", width)
-            .attr("height", height)
+    var map = d3.select("#map").append("svg")
+            .attr("width", width2)
+            .attr("height", height2)
+            .attr("id", "left")
             .append("g")
-            .attr("transform", "translate(-130, 30)");
+            .attr("transform", "translate(-150, -30)");
 
     var projection = d3.geoAlbersUsa()
             .scale(800);
@@ -757,13 +783,119 @@
 
     });
 
-    // Add bar chart
-    var bar = d3.select("#drawMap").append("svg")
-            .attr("width", width1)
-            .attr("height", height)
-            .append("g")
-            .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+      // Add month select
+      var slider = d3.select("#left")
+              .append("g")
+              .attr("transform", "translate(30, 470)");
 
+
+      var x = d3.scaleLinear()
+              .range([0, width2])
+              .clamp(true);
+
+      slider.append("line")
+              .attr("class", "track")
+              .attr("x1", x.range()[0])
+              .attr("x2", x.range()[1]);
+
+      slider.append("g")
+              .attr("transform", "translate(0, 25)")
+              .selectAll("text")
+              .data(month1)
+              .enter()
+              .append("text")
+              .attr("x", function(d,i) { return i*54; })
+              .attr("y", 0)
+              .text(function(d) { return d; });
+
+      slider.append("g")
+              .selectAll("circle")
+              .data(month1)
+              .enter()
+              .append("circle")
+              .attr("id", function(d) { return d; })
+              .attr("cx", function(d,i) { return i*54 + 10; })
+              .attr("cy", 0)
+              .attr("r", 7)
+              .style("fill", "#8da0cb")
+              .on("click", select_month);
+
+
+
+      // Add bar chart
+      var bar_data = [];
+      var bar = d3.select("#map").append("svg")
+              .attr("width", width1)
+              .attr("height", height2)
+              .append("g")
+              .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+      var xScale = d3.scaleLinear()
+              .domain([0, d3.max(bar_data, function(d) { return d[1]; })])
+              .range([0, width1 - margin.left - margin.right]);
+
+      var yScale = d3.scaleBand()
+              .domain(bar_data.map(function(d) {
+                  return d[0];
+              }))
+              .range([0, height2 - margin.top - margin.bottom])
+              .padding(0.1);
+
+      bar.append("g")
+              .attr("transform", "translate(0, 0)")
+              .attr("class", "axis")
+              .call(d3.axisTop(xScale));
+      bar.append("text")
+              .attr("class", "text")
+              .attr("x", 150)
+              .attr("y", -30)
+              .style("text-anchor", "middle")
+              .text("Average Delay (min)");
+
+      bar.append("g")
+              .attr("class", "axis")
+              .call(d3.axisLeft(yScale));
+      bar.append("text")
+              .attr("class", "text")
+              .attr("transform", "rotate(-90)")
+              .attr("x", -200)
+              .attr("y", -40)
+              .style("text-anchor", "middle")
+              .text("Destinations");
+
+
+
+      function select_carrier(d) {
+          d3.selectAll('span')
+                  .style("text-decoration", "none")
+                  .style("font-weight", "normal");
+
+          d3.select("span[id=" + "'" + d + "'" + "]")
+                  .style("text-decoration", "underline")
+                  .style("font-weight", "bold");
+
+          slider.select("#" + month_selected)
+                  .style("fill", "#fc8d62")
+                  .attr("r", 9);
+
+          carrier_selected = d;
+          buildResult(carrier_selected, month_selected);
+
+      }
+
+      function select_month(d) {
+          slider.selectAll('circle')
+                  .style("fill", "#8da0cb")
+                  .attr("r", 7);
+
+
+          slider.select("#" + d)
+                  .style("fill", "#fc8d62")
+                  .attr("r", 9);
+
+          month_selected = d;
+          buildResult(carrier_selected, month_selected);
+      }
 
     var airportIndex = function(code) {
         for (var i = 0; i < airports.length; i++) {
@@ -781,337 +913,321 @@
         }
     };
 
-	  
-	   // After user click submit button, find the right file and compute average delay
-    function buildResult() {
-
-        var bar_data = [];
-
-        var updateBarChart = function() {
-            bar.selectAll(".bar")
-                    .remove();
-
-            bar.selectAll(".text")
-                    .remove();
-
-            bar.selectAll(".axis")
-                    .remove();
-
-            bar_data = [];
-        };
-
-
-        map.selectAll(".dot")
-                .style("opacity", 0.5)
-                .attr("r", radius1)
-                .style("fill", "gray");
-
-        map.selectAll(".mapLine")
-                .remove();
-
-        updateBarChart();
-
-        carrierV = d3.select('#carrierF').select('select').property('value');
-        monthV = d3.select('#monthF').select('select').property('value');
-
-        var carrier;
-        var month;
-        switch(carrierV) {
-            case "American Airlines":
-                carrier = "AA";
-                break;
-            case "Alaska Airlines":
-                carrier = "AS";
-                break;
-            case "JetBlue Airways":
-                carrier = "B6";
-                break;
-            case "Delta Airlines":
-                carrier = "DL";
-                break;
-            case "Frontier Airlines":
-                carrier = "F9";
-                break;
-            case "Hawaiian Airlines":
-                carrier = "HA";
-                break;
-            case "United Airlines":
-                carrier = "UA";
-                break;
-            case "Virgin America":
-                carrier = "VX";
-                break;
-            case "Southwest Airlines":
-                carrier = "WN";
-                break;
-        }
-
-        switch(monthV) {
-            case "January":
-                month = 1;
-                break;
-            case "February":
-                month = 2;
-                break;
-            case "March":
-                month = 3;
-                break;
-            case "April":
-                month = 4;
-                break;
-            case "May":
-                month = 5;
-                break;
-            case "June":
-                month = 6;
-                break;
-            case "July":
-                month = 7;
-                break;
-            case "August":
-                month = 8;
-                break;
-            case "September":
-                month = 9;
-                break;
-            case "October":
-                month = 10;
-                break;
-            case "November":
-                month = 11;
-                break;
-            case "December":
-                month = 12;
-                break;
-        }
-
-        var filePath = "data/filtered_data/" + carrier + "/" + carrier +  "_" + month + ".csv";
-        var result = [];
-        d3.csv(filePath, function(data) {
-            var output = [];
-            for (var i = 0; i < 30; i++) {
-                output[i] = [];
-                for (var j = 0; j < 30; j++) {
-                    output[i][j] = {
-                        total_count: 0,
-                        delay_count: 0,
-                        carrier_delay: 0,
-                        weather_delay: 0,
-                        nas_delay: 0,
-                        security_delay: 0,
-                        late_aircraft_delay: 0
-                    }
-                }
-            }
-
-            data.forEach(function(d) {
-                d.ARR_DELAY_NEW = +d.ARR_DELAY_NEW;
-                d.CARRIER_DELAY = +d.CARRIER_DELAY;
-                d.WEATHER_DELAY = +d.WEATHER_DELAY;
-                d.NAS_DELAY = +d.NAS_DELAY;
-                d.SECURITY_DELAY = +d.SECURITY_DELAY;
-                d.LATE_AIRCRAFT_DELAY = +d.LATE_AIRCRAFT_DELAY;
-
-                output[airportIndex(d.ORIGIN)][airportIndex(d.DEST)].total_count++;
-                if(d.ARR_DELAY_NEW > 0) {
-                    output[airportIndex(d.ORIGIN)][airportIndex(d.DEST)].delay_count++;
-                    output[airportIndex(d.ORIGIN)][airportIndex(d.DEST)].carrier_delay += d.CARRIER_DELAY;
-                    output[airportIndex(d.ORIGIN)][airportIndex(d.DEST)].weather_delay += d.WEATHER_DELAY;
-                    output[airportIndex(d.ORIGIN)][airportIndex(d.DEST)].nas_delay += d.NAS_DELAY;
-                    output[airportIndex(d.ORIGIN)][airportIndex(d.DEST)].security_delay += d.SECURITY_DELAY;
-                    output[airportIndex(d.ORIGIN)][airportIndex(d.DEST)].late_aircraft_delay += d.LATE_AIRCRAFT_DELAY;
-                }
-            });
-            for (var p = 0; p < 30; p++) {
-                result[p] = [];
-                for (var q = 0; q < 30; q++) {
-                    if (output[p][q].total_count != 0) {
-                        var total_delay = output[p][q].carrier_delay + output[p][q].weather_delay + output[p][q].nas_delay + output[p][q].security_delay + output[p][q].late_aircraft_delay;
-                        var average_delay = total_delay/output[p][q].total_count;
-                        result[p].push ({
-                            dest_code: indexAirport(q),
-                            dest_index: q,
-                            average_delay: average_delay,
-                            total_count: output[p][q].total_count,
-                            delay_count: output[p][q].delay_count,
-                            total_delay: total_delay,
-                            carrier_delay: output[p][q].carrier_delay,
-                            weather_delay: output[p][q].weather_delay,
-                            nas_delay: output[p][q].nas_delay,
-                            security_delay: output[p][q].security_delay,
-                            late_aircraft_delay: output[p][q].late_aircraft_delay
-                        })
-                    }
-                }
-            }
-        });
+      var addLinks = function(d, o) {
+          var temp2 = projection([d.longitude,d.latitude]);
+          for (var t = 0; t < airports.length; t++) {
+              if (airports[t].code == o.dest_code) {
+                  var temp = projection([airports[t].longitude, airports[t].latitude]);
+                  var angle = Math.atan(Math.abs(temp[1]-temp2[1])/Math.abs(temp[0]-temp2[0]));
+                  var angle2 = Math.atan(Math.abs(temp[0]-temp2[0])/Math.abs(temp[1]-temp2[1]));
+                  map.append("line")
+                          .attr("class", "mapLine")
+                          .style("stroke-width", "2px")
+                          .attr("x1", function(){
+                              if (temp[0]>temp2[0]) {
+                                  return temp[0]-5*Math.cos(angle)
+                              } else {
+                                  return temp[0]+5*Math.cos(angle)
+                              }
+                          })
+                          .attr("y1", function(){
+                              if (temp[1]>temp2[1]) {
+                                  return temp[1]-5*Math.sin(angle)
+                              } else {
+                                  return temp[1]+5*Math.sin(angle)
+                              }
+                          })
+                          .attr("x2", function(){
+                              if (temp[0]>temp2[0]) {
+                                  return temp2[0]+radius1*Math.sin(angle2)
+                              } else {
+                                  return temp2[0]-radius1*Math.sin(angle2)
+                              }
+                          })
+                          .attr("y2", function(){
+                              if (temp[1]>temp2[1]) {
+                                  return temp2[1]+radius1*Math.cos(angle2)
+                              } else {
+                                  return temp2[1]-radius1*Math.cos(angle2)
+                              }
+                          })
+                          .attr("stroke", function(){
+                              if(o.average_delay>0) {
+                                  return "#fc8d62";
+                              } else {
+                                  return "#66c2a5";
+                              }
+                          });
+              }
+          }
+      };
 
 
-        var addLinks = function(d, o) {
-            var temp2 = projection([d.longitude,d.latitude]);
-            for (var t = 0; t < airports.length; t++) {
-                if (airports[t].code == o.dest_code) {
-                    var temp = projection([airports[t].longitude, airports[t].latitude]);
-                    var angle = Math.atan(Math.abs(temp[1]-temp2[1])/Math.abs(temp[0]-temp2[0]));
-                    var angle2 = Math.atan(Math.abs(temp[0]-temp2[0])/Math.abs(temp[1]-temp2[1]));
-                    map.append("line")
-                            .attr("class", "mapLine")
-                            .style("stroke-width", "2px")
-                            .attr("x1", function(){
-                                if (temp[0]>temp2[0]) {
-                                    return temp[0]-5*Math.cos(angle)
-                                } else {
-                                    return temp[0]+5*Math.cos(angle)
-                                }
-                            })
-                            .attr("y1", function(){
-                                if (temp[1]>temp2[1]) {
-                                    return temp[1]-5*Math.sin(angle)
-                                } else {
-                                    return temp[1]+5*Math.sin(angle)
-                                }
-                            })
-                            .attr("x2", function(){
-                                if (temp[0]>temp2[0]) {
-                                    return temp2[0]+radius1*Math.sin(angle2)
-                                } else {
-                                    return temp2[0]-radius1*Math.sin(angle2)
-                                }
-                            })
-                            .attr("y2", function(){
-                                if (temp[1]>temp2[1]) {
-                                    return temp2[1]+radius1*Math.cos(angle2)
-                                } else {
-                                    return temp2[1]-radius1*Math.cos(angle2)
-                                }
-                            })
-                            .attr("stroke", function(){
-                                if(o.average_delay>0) {
-                                    return "red";
-                                } else {
-                                    return "green";
-                                }
-                            });
-                }
-            }
-        };
 
-        function isConnectedAsTarget(a, b) {
-            for(var i = 0; i < result[a.index].length; i++) {
-                if(result[a.index][i].dest_index == b.index) {
-                    return true;
-                }
-            }
-            return false;
-        }
+      // After user click submit button, find the right file and compute average delay
+      function buildResult(carrierValue, monthValue) {
+          var carrier, month;
+          switch(carrierValue) {
+              case "American Airlines":
+                  carrier = "AA";
+                  break;
+              case "Alaska Airlines":
+                  carrier = "AS";
+                  break;
+              case "JetBlue Airways":
+                  carrier = "B6";
+                  break;
+              case "Delta Airlines":
+                  carrier = "DL";
+                  break;
+              case "Frontier Airlines":
+                  carrier = "F9";
+                  break;
+              case "Hawaiian Airlines":
+                  carrier = "HA";
+                  break;
+              case "United Airlines":
+                  carrier = "UA";
+                  break;
+              case "Virgin America":
+                  carrier = "VX";
+                  break;
+              case "Southwest Airlines":
+                  carrier = "WN";
+                  break;
+          }
 
-        var mapMouseOver = function(d) {
+          switch(monthValue) {
+              case "Jan":
+                  month = 1;
+                  break;
+              case "Feb":
+                  month = 2;
+                  break;
+              case "Mar":
+                  month = 3;
+                  break;
+              case "Apr":
+                  month = 4;
+                  break;
+              case "May":
+                  month = 5;
+                  break;
+              case "Jun":
+                  month = 6;
+                  break;
+              case "Jul":
+                  month = 7;
+                  break;
+              case "Aug":
+                  month = 8;
+                  break;
+              case "Sept":
+                  month = 9;
+                  break;
+              case "Oct":
+                  month = 10;
+                  break;
+              case "Nov":
+                  month = 11;
+                  break;
+              case "Dec":
+                  month = 12;
+                  break;
+          }
 
-            map.selectAll(".mapLine")
-                    .remove();
+          var filePath = "data/filtered_data/" + carrier + "/" + carrier +  "_" + month + ".csv";
+          console.log(filePath);
+          d3.csv(filePath, function(data) {
+              var output = [];
+              for (var i = 0; i < 30; i++) {
+                  output[i] = [];
+                  for (var j = 0; j < 30; j++) {
+                      output[i][j] = {
+                          total_count: 0,
+                          delay_count: 0,
+                          carrier_delay: 0,
+                          weather_delay: 0,
+                          nas_delay: 0,
+                          security_delay: 0,
+                          late_aircraft_delay: 0
+                      }
+                  }
+              }
 
-            updateBarChart();
+              data.forEach(function(d) {
+                  d.ARR_DELAY_NEW = +d.ARR_DELAY_NEW;
+                  d.CARRIER_DELAY = +d.CARRIER_DELAY;
+                  d.WEATHER_DELAY = +d.WEATHER_DELAY;
+                  d.NAS_DELAY = +d.NAS_DELAY;
+                  d.SECURITY_DELAY = +d.SECURITY_DELAY;
+                  d.LATE_AIRCRAFT_DELAY = +d.LATE_AIRCRAFT_DELAY;
 
-            var circle = d3.select(this);
+                  output[airportIndex(d.ORIGIN)][airportIndex(d.DEST)].total_count++;
+                  if(d.ARR_DELAY_NEW > 0) {
+                      output[airportIndex(d.ORIGIN)][airportIndex(d.DEST)].delay_count++;
+                      output[airportIndex(d.ORIGIN)][airportIndex(d.DEST)].carrier_delay += d.CARRIER_DELAY;
+                      output[airportIndex(d.ORIGIN)][airportIndex(d.DEST)].weather_delay += d.WEATHER_DELAY;
+                      output[airportIndex(d.ORIGIN)][airportIndex(d.DEST)].nas_delay += d.NAS_DELAY;
+                      output[airportIndex(d.ORIGIN)][airportIndex(d.DEST)].security_delay += d.SECURITY_DELAY;
+                      output[airportIndex(d.ORIGIN)][airportIndex(d.DEST)].late_aircraft_delay += d.LATE_AIRCRAFT_DELAY;
+                  }
+              });
+              for (var p = 0; p < 30; p++) {
+                  result[p] = [];
+                  for (var q = 0; q < 30; q++) {
+                      if (output[p][q].total_count != 0) {
+                          var total_delay = output[p][q].carrier_delay + output[p][q].weather_delay + output[p][q].nas_delay + output[p][q].security_delay + output[p][q].late_aircraft_delay;
+                          var average_delay = total_delay/output[p][q].total_count;
+                          result[p].push ({
+                              dest_code: indexAirport(q),
+                              dest_index: q,
+                              average_delay: average_delay,
+                              total_count: output[p][q].total_count,
+                              delay_count: output[p][q].delay_count,
+                              total_delay: total_delay,
+                              carrier_delay: output[p][q].carrier_delay,
+                              weather_delay: output[p][q].weather_delay,
+                              nas_delay: output[p][q].nas_delay,
+                              security_delay: output[p][q].security_delay,
+                              late_aircraft_delay: output[p][q].late_aircraft_delay
+                          })
+                      }
+                  }
+              }
+          });
 
-            dot.transition()
-                    .style("opacity", function(o) {
-                        if (isConnectedAsTarget(o, d)) return 1;
-                        else return 0.5;
-                    })
-                    .style("fill", function(o) {
-                        if (isConnectedAsTarget(o, d)) return "blue";
-                        else return "gray";
-                    })
-                    .attr("r", function(o) {
-                        if (isConnectedAsTarget(o, d)) return radius2;
-                        else return radius1;
-                    });
 
-            circle.transition()
-                    .style("fill", "black")
-                    .style("opacity", 1)
-                    .attr("r", radius2);
+          var createDot = function(d) {
+              dot.transition()
+                      .style("opacity", function(o) {
+                          if (isConnectedAsTarget(o, d)) return 1;
+                          else return 0.5;
+                      })
+                      .style("fill", function(o) {
+                          if (isConnectedAsTarget(o, d)) return "#8da0cb";
+                          else return "gray";
+                      })
+                      .attr("r", function(o) {
+                          if (isConnectedAsTarget(o, d)) return radius2;
+                          else return radius1;
+                      });
 
-            result[d.index].forEach(function(o) {
-                addLinks(d, o);
-                bar_data.push ([o.dest_code, o.average_delay, o.carrier_delay, o.weather_delay, o.nas_delay, o.security_delay, o.late_aircraft_delay]);
-            });
-            createBarChart();
-        };
+              d3.select("#" + d.code)
+                      .transition()
+                      .style("fill", "black")
+                      .style("opacity", 1)
+                      .attr("r", radius2);
 
-        var mapMouseOut = function() {
-            var circle = d3.select(this);
-            dot.transition(300);
-            circle.transition(300);
-        };
+              result[d.index].forEach(function(o) {
+                  addLinks(d, o);
+                  bar_data.push ([o.dest_code, o.average_delay, o.carrier_delay, o.weather_delay, o.nas_delay, o.security_delay, o.late_aircraft_delay]);
+              });
 
-        var dot = map.selectAll(".circle")
-                .data(airports)
-                .enter().append("circle")
-                .attr("class", "dot")
-                .attr("id", function(d){
-                    return d.code;
-                })
-                .style("fill", "gray")
-                .style("opacity", 0.5)
-                .attr("r", radius1)
-                .attr("transform", function(d) { return "translate(" + projection([d.longitude, d.latitude]) + ")";})
-                .on("mouseover", mapMouseOver)
-                .on("mouseout", mapMouseOut);
-        dot.append("title")
-                .text(function(d) { return d.code; });
+          };
 
-        var createBarChart = function() {
-            var xScale = d3.scaleLinear()
-                    .domain([0, d3.max(bar_data, function(d) { return d[1]; })])
-                    .range([0, width1 - margin.left - margin.right]);
+          var createBar = function() {
+              xScale = d3.scaleLinear()
+                      .domain([0, d3.max(bar_data, function(d) { return d[1]; })])
+                      .range([0, width1 - margin.left - margin.right]);
 
-            var yScale = d3.scaleBand()
-                    .domain(bar_data.map(function(d) {
-                        return d[0];
-                    }))
-                    .range([0, height - margin.top - margin.bottom])
-                    .padding(0.1);
+              yScale = d3.scaleBand()
+                      .domain(bar_data.map(function(d) {
+                          return d[0];
+                      }))
+                      .range([0, height2 - margin.top - margin.bottom])
+                      .padding(0.1);
 
-            bar.append("g")
-                    .attr("transform", "translate(0, 0)")
-                    .attr("class", "axis")
-                    .call(d3.axisTop(xScale));
-            bar.append("text")
-                    .attr("class", "text")
-                    .attr("x", 150)
-                    .attr("y", -30)
-                    .style("text-anchor", "middle")
-                    .text("Average Delay (min)");
+              bar.append("g")
+                      .attr("transform", "translate(0, 0)")
+                      .attr("class", "axis")
+                      .call(d3.axisTop(xScale));
 
-            bar.append("g")
-                    .attr("class", "axis")
-                    .call(d3.axisLeft(yScale));
-            bar.append("text")
-                    .attr("class", "text")
-                    .attr("transform", "rotate(-90)")
-                    .attr("x", -200)
-                    .attr("y", -40)
-                    .style("text-anchor", "middle")
-                    .text("Destinations");
+              bar.append("g")
+                      .attr("class", "axis")
+                      .call(d3.axisLeft(yScale));
 
-            bar.selectAll(".bar")
-                    .data(bar_data)
-                    .enter().append("rect")
-                    .attr("class", "bar")
-                    .style("fill", "#FF4040")
-                    .style("opacity", 0.8)
-                    .attr("x", 0)
-                    .attr("y", function(d) { return yScale(d[0]); })
-                    .attr("height", yScale.bandwidth())
-                    .attr("width", function(d) { return xScale(d[1]); })
-                    .append("title")
-                    .text(function(d) { return d[1]; });
+              bar.selectAll(".bar")
+                      .data(bar_data)
+                      .enter().append("rect")
+                      .attr("class", "bar")
+                      .style("fill", "#fc8d62")
+                      .style("opacity", 0.8)
+                      .attr("x", 0)
+                      .attr("y", function(d) { return yScale(d[0]); })
+                      .attr("height", yScale.bandwidth())
+                      .attr("width", function(d) { return xScale(d[1]); })
+                      .append("title")
+                      .text(function(d) { return d[1]; });
+          };
 
-        };
+          var updateBar = function() {
+              bar.selectAll(".bar")
+                      .remove();
 
-    }
+              bar.selectAll(".axis")
+                      .remove();
+
+              bar_data = [];
+          };
+
+          var mapMouseOver = function(d) {
+              origin_selected = d;
+
+              map.selectAll(".mapLine")
+                      .remove();
+
+              updateBar();
+
+              createDot(d);
+
+              createBar();
+          };
+
+
+          if (origin_selected == null) {
+              var dot = map.selectAll(".circle")
+                      .data(airports)
+                      .enter().append("circle")
+                      .attr("class", "dot")
+                      .attr("id", function(d){
+                          return d.code;
+                      })
+                      .style("fill", "gray")
+                      .style("opacity", 0.5)
+                      .attr("r", radius1)
+                      .attr("transform", function(d) { return "translate(" + projection([d.longitude, d.latitude]) + ")";})
+                      .on("mouseover", mapMouseOver);
+
+              dot.append("title")
+                      .text(function(d) { return d.code; });
+          } else {
+              dot = map.selectAll(".dot")
+                      .style("opacity", 0.5)
+                      .attr("r", radius1)
+                      .style("fill", "gray");
+
+              map.selectAll(".mapLine")
+                      .remove();
+
+              updateBar();
+
+              createDot(origin_selected);
+
+              createBar();
+          }
+
+
+          function isConnectedAsTarget(a, b) {
+              for(var i = 0; i < result[a.index].length; i++) {
+                  if(result[a.index][i].dest_index == b.index) {
+                      return true;
+                  }
+              }
+              return false;
+          }
+
+      }
 
 /*************************************************************************************************************************************************
 THIS IS THE CODE FOR THE PCP
