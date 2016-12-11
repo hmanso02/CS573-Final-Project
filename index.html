@@ -262,12 +262,12 @@
 <h1>Visualizing Flight Delay Data</h1>
 <h2 style="text-align: center; color: steelblue">By Huayan Sun, Mei Yang and Hamid Mansoor </h2>
 <br>
+<p style="margin: 40px; font-size: 18px;">Flying has never been easier or cheaper in USA than it is now. Flight delays and cancellations are a major concern for travellers as these events can cause everything from a ruined family vacation to serious monetary damage. We want to build a tool that gives travellers the ability to browse through flight delay and cancellation data for some recent years, across the major carriers in the US and major airports. After using this tool, travellers should be able to guage the performance of various carriers and airports. This tool also lets travellers anticipate a rise or fall in delays and cancellations across the seasons and regions of the US. Knowing this data could be useful for making travel plans. </p>
 <h2>The Average On-Time Arrivals for Major Carriers For 2010 - 2015 </h2>
+<p style="margin: 40px; font-size: 16px;">This chart gives you an overview of the flight punctiality performance for some major US carriers for the years 2011 - 2015. The values represent the percentage of flights that were on time. To single out a single carrier, please hover your mouse icon over the line representing the carrier to blur out the other information. </p>
 <div id="graph" style="margin-top: 45px; margin-left:45px; margin-right: 45px; height: 500px;"></div>
 <h2>The Average Flight Delay Between Major Airports, For Major Carriers </h2>
-
 <div id="map" style="margin-bottom: 45px;"></div>
-
  </div>
 	<h2>Filterable Flight Delay Information Table</h2>
 	<div id="page-wrap" style="margin-left:45px; margin-right: 45px; width:auto">
@@ -1366,12 +1366,11 @@ THIS IS THE CODE FOR THE PCP
             foo.style("stroke-width", '5px');
             foo.style("stroke", 'red');
             foo.style("opacity", '0.9');
-            // div.transition()    
-            //     .duration(200)    
-            //     .style("opacity", .9);             
-            //     div.html(d.Name)  
-            //     .style("left", (d3.event.pageX) + "px")   
-            //     .style("top", (d3.event.pageY - 28) + "px");  
+            ticksData = d;
+            d3.selectAll('g.tick').style("opacity", '0.1')
+            d3.selectAll('g.tick')
+  			.filter(function(d){return d==ticksData["2010_ontime"] || d==ticksData["2011_ontime"] || d==ticksData["2012_ontime"] 
+  				|| d==ticksData["2013_ontime"] || d==ticksData["2014_ontime"] || d==ticksData["2015_ontime"] ;} ).style("opacity", '1')
             })          
           .on("mouseout", function(d) {   
               var foo = d3.select(this);
@@ -1380,9 +1379,7 @@ THIS IS THE CODE FOR THE PCP
               foo.style("stroke", 'steelblue');
               foo1.style("stroke", 'steelblue');
               foo1.style("opacity", '0.9');
-              // div.transition()    
-              //     . duration(500)    
-              //     .style("opacity", 0); 
+              d3.selectAll('g.tick').style("opacity", '1')
           });
         var g = svg.selectAll(".dimension")
           .data(dimensions)
@@ -1441,7 +1438,7 @@ THIS IS THE CODE FOR THE TREEMAP
       var format = d3.format(",d");
       var color = d3.scaleOrdinal()
           .range(d3.schemeCategory10
-              .map(function(c) { console.log(c); c = d3.rgb(c); c.opacity = 0.6; return c; }));
+              .map(function(c) { c = d3.rgb(c); c.opacity = 0.6; return c; }));
       var stratify = d3.stratify()
           .parentId(function(d) { return d.id.substring(0, d.id.lastIndexOf(".")); });
       var treemap = d3.treemap()
