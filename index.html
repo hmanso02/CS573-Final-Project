@@ -26,6 +26,7 @@
 		margin: 20px 0; 
     }
 	
+	
 	h1 {
 		font-family: Calibri, Candara, Segoe, "Segoe UI", Optima, Arial, sans-serif;
 		font-size: 40px;
@@ -273,7 +274,7 @@
 
 </div>
 
-<div id="piechart" style="margin-left:45px; margin-right: 45px; width:auto">
+<div id="piechart" style="margin-left:45px; margin-right: 45px; width:auto;height: 200px; display: block">
 	</div>
 <br>
 	<h2>Cancellation Data For The Major Airlines For 2010 - 2015 </h2>
@@ -301,7 +302,10 @@
       var origin_selected = null;
 	  var result = [];
 	  var show = [];
-	  var piedata = [];
+	  var dataPie = [];
+	  var pielabel = ["NAS Delay","Security Delay","Aircraft Delay","Weather Delay","Carrier Delay"];
+		
+	  
 
 
 	  var sCarrier = d3.select('#carrierF')
@@ -364,7 +368,8 @@
 					 .text(function(d) {return d;});
 
 	  var button = d3.select("#submit2")
-            .attr("onclick", "getvalue()");	
+            .attr("onclick", "getvalue()")
+			//.attr("onclick","drawPie()");	
 			
 
       function initialTable(){
@@ -410,6 +415,7 @@
 	  
 	  function getvalue() {
 		d3.select("#generalInfo").html("")
+		d3.select("#piechart").html("")
 	 
 		//carrierValue = d3.select('#carrierFilter').select('select').property('value')
 	
@@ -424,6 +430,8 @@
         var monthInfor;
 		var originInfor;
 		var destInfor;
+		var piedata = [];
+		
 		 switch(originValue) {
 		
             case "Atlanta":
@@ -690,11 +698,11 @@
 		
 		for(i = 0; i < show.length;i++ ){
 			piedata.push([show[i]["NAS Delay"],show[i]["Security Delay"],show[i]["Aircraft Delay"],show[i]["Weather Delay"],show[i]["Carrier Delay"]])
-		
 		}
-		console.log(piedata)
 		
+		dataPie = piedata;
 		
+		drawPie();
 		
 //		   piedata = result.filter(function(key){
 //		  
@@ -707,26 +715,10 @@
 
 		  
 	
-	var m = 10,
-    r = 100,
-    z = d3.scaleOrdinal(d3.schemeCategory20c);;
 
 
-var svg = d3.select("#piechart").selectAll("svg")
-    .data(piedata)
-  .enter().append("svg")
-    .attr("width", (r + m) * 2)
-    .attr("height", (r + m) * 2)
-  .append("g")
-    .attr("transform", "translate(" + (r + m) + "," + (r + m) + ")");
 
-svg.selectAll("path")
-    .data(d3.pie())
-  .enter().append("path")
-    .attr("d", d3.arc()
-        .innerRadius(r / 2)
-        .outerRadius(r))
-    .style("fill", function(d, i) { return z(i); });
+
 	
 		
 
@@ -771,10 +763,48 @@ svg.selectAll("path")
 	  });
 	  
 	  
-	  	// pie chart
+	  
 		
 	
 	};
+	
+	function drawPie(){
+		
+	
+		var m = 10,
+			r = 80,
+			radius = 80;
+		var color = ["#EA4335","#34A853","#4285F4","#FBBC05","#ccccff"];
+		var svg = d3.select("#piechart").selectAll("svg")
+			.data(dataPie)
+		.enter().append("svg")
+			.attr("width", (r + m) * 3)
+			.attr("height", (r + m) * 2)
+		.append("g")
+			.attr("transform", "translate(" + (r + m) + "," + (r + m) + ")");
+		var arc = d3.arc()
+					.outerRadius(radius)
+					.innerRadius(radius - 40);
+		var g = svg.selectAll(".arc")
+					.data(d3.pie())
+					.enter().append("g")
+					 .attr("class","arc")
+					 
+		g.append("path")
+			.attr("d",arc)
+			.style("fill", function(d, i) { return color[i]; })
+			.style("opacity","0.7")
+		
+		
+		g.append("text")
+				.attr("transform", function (d) {
+						return "translate(" + arc.centroid(d)+ ")";
+					})
+				.attr("dy", ".35em")
+				.text(function(d,i){return pielabel[i];});
+	
+		
+	}
 
 	
 	
