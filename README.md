@@ -54,6 +54,5 @@ Mei Yang worked on data training, Table and Donut chart, and user interface.
 Huayan Sun worked on data filter, data training, Map with Bar chat.
 
 #References:
-
-
-
+http://bl.ocks.org/ganeshv/6a8e9ada3ab7f2d88022
+https://bl.ocks.org/jasondavies/1341281
