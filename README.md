@@ -1,13 +1,13 @@
 # CS573-Final-Project
 Project link: ["VisA to VisB to VisC on Hamid's Github"]()
 Project link: ["VisA to VisB to VisC on Emma's Github"]()
-Project link: ["VisA to VisB to VisC on Xiaoyan's Github"]()
+Project link: ["VisA to VisB to VisC on Huayanyan's Github"]()
 
 # Team
 
 - Hamid Mansoor, hmanso02
 - Mei Yang, emmagitlab
-- Xiaoyan Sun, jacysun
+- Huayan Sun, jacysun
 
 
 # Overview 
@@ -51,7 +51,7 @@ Hamid worked on Parallel Coordinate and Treemap.
 
 Mei Yang worked on data training, Table and Donut chart, and user interface.
 
-Xiaoyan Sun worked on data filter, data training, Map with Bar chat.
+Huayan Sun worked on data filter, data training, Map with Bar chat.
 
 #References:
 
