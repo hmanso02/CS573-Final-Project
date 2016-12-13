@@ -35,8 +35,8 @@ Non-obvious features: Click carries and month and hover over or click to check a
 
 The third visualization is a Table  and donut chart that allows user specify origin, destination and the month. 
 
-Non-obvious features: After clicking the show button, the table is populated with the flight delay data for the major carriers operating those routes. The user has the ability to sort the carriers in ascending or descending order by any of the measure in the table by clicking on the arrows in the column headers. 
-The proportions of flight delay causes are displayed in donut charts, each one representing a carrier. This segment gets updated every time the metrics change.
+Non-obvious features: After clicking the show button,click columns to sort the carriers in ascending or descending order. 
+And donut charts will desplay the proportions of flight delay causes,each one representing a carrier. This segment gets updated every time the metrics change.
 
 ![viz3](viz3.png)
 
