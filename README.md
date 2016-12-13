@@ -1,7 +1,7 @@
 # CS573-Final-Project
-Project link: ["VisA to VisB to VisC on Hamid's Github"]()
-Project link: ["VisA to VisB to VisC on Emma's Github"]()
-Project link: ["VisA to VisB to VisC on Huayanyan's Github"]()
+
+Project link: ["Final project link"](https://hmanso02.github.io/CS573-Final-Project/)
+Video link:["Final project present video"](https://youtu.be/7W7IEwE4C-I)
 
 # Team
 
