@@ -1,4 +1,4 @@
-Origin,Destination,Carrier,Month,Percentage,Total Flight,Delay Flight,Total Delay Time:min,Carrier Delay,Weather Delay,NAS Delay,Security Delay,Aircraft Delay
+Origin,Destination,Carrier,Month,Delay Percentage,Total Flights,Delay Flights,Total Delay Time(min),Carrier Delay,Weather Delay,NAS Delay,Security Delay,Aircraft Delay
 ATL,BOS,WN,12,46%,127,58,2229,838,68,273,0,1050
 ATL,BWI,WN,12,50%,545,270,7512,2312,480,497,21,4202
 ATL,DCA,WN,12,34%,353,121,3194,1022,94,311,0,1767
