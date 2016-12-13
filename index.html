@@ -27,10 +27,13 @@
     }
     p {
 		font-family: Calibri, Candara, Segoe, "Segoe UI", Optima, Arial, sans-serif;
-		margin: 20px 0; 
+		font-size: 16px;
+		margin-bottom: 20px ; 
+		text-aling:justify;
     }
 	
 	
+
 	h1 {
 		font-family: Calibri, Candara, Segoe, "Segoe UI", Optima, Arial, sans-serif;
 		font-size: 40px;
@@ -38,7 +41,7 @@
 	}
 	h2 {
 		font-family: Calibri, Candara, Segoe, "Segoe UI", Optima, Arial, sans-serif;
-		margin-left: 10px;
+		margin-left: 45px;
 	}
 	/* 
 	Generic Styling, for Desktops/Laptops 
@@ -263,15 +266,15 @@
 <h1>Visualizing Flight Delay Data</h1>
 <h2 style="text-align: center; color: steelblue">By Huayan Sun, Mei Yang and Hamid Mansoor </h2>
 <br>
-<p style="margin: 40px; font-size: 18px;">Flying has never been easier or cheaper in USA than it is now. Flight delays and cancellations are a major concern for travellers as these events can cause everything from a ruined family vacation to serious monetary damage. We want to build a tool that gives travellers the ability to browse through flight delay and cancellation data for some recent years, across the major carriers in the US and major airports. After using this tool, travellers should be able to guage the performance of various carriers and airports. This tool also lets travellers anticipate a rise or fall in delays and cancellations across the seasons and regions of the US. Knowing this data could be useful for making travel plans. </p>
+<p style="margin: 45px; ">Flying has never been easier or cheaper in USA than it is now. Flight delays and cancellations are a major concern for travellers as these events can cause everything from a ruined family vacation to serious monetary damage. We want to build a tool that gives travellers the ability to browse through flight delay and cancellation data for some recent years, across the major carriers in the US and major airports. After using this tool, travellers should be able to guage the performance of various carriers and airports. This tool also lets travellers anticipate a rise or fall in delays and cancellations across the seasons and regions of the US. Knowing this data could be useful for making travel plans. </p>
 <h2>The Average On-Time Arrivals for Major Carriers For 2010 - 2015 </h2>
-<p style="margin: 40px; font-size: 16px;">This chart gives you an overview of the flight punctiality performance for some major US carriers for the years 2011 - 2015. The values represent the percentage of flights that were on time. To single out a single carrier, please hover your mouse icon over the line representing the carrier to blur out the other information. </p>
-<div id="graph" style="margin-top: 45px; margin-left:45px; margin-right: 45px; height: 500px;"></div>
+<p style="margin: 45px; ">This chart gives you an overview of the flight punctiality performance for some major US carriers for the years 2011 - 2015. The values represent the percentage of flights that were on time. To single out a single carrier, please hover your mouse icon over the line representing the carrier to blur out the other information. </p>
+<div id="graph" style="margin-top: 45px; margin-left:200px; margin-right: 45px; height: 500px;"></div>
 <h2>The Average Flight Delay Between Major Airports, For Major Carriers </h2>
-<div id="map" style="margin-bottom: 45px;"></div>
+<div id="map" style="margin-bottom: 45px;margin-left : 100px"></div>
  </div>
 	<h2>Filterable Flight Delay Information Table</h2>
-	<p style="margin: 40px; margin-bottom: 5px; margin-top: 10px;font-size: 18px;">
+	<p style="margin: 45px; margin-bottom: 5px; margin-top: 10px;">
 		This table is meant to give users an overview of the performance of various carriers for a particular route, during a particular season. To use this table, select the cities of origin and destination and the month for which your trip is palnned. The resulting table will show you time delay data across multiple carriers, along with the cause of the delay. The arrows in the column headers allow you to filter data in asceding or descending order for that particular metric. For example, to sort the rows in ascending order by the number of flights, click the upside of the two sided arrow in the column header for "Total Flights".  
 	</p>
 	<div id="page-wrap" style="margin-left:45px; margin-right: 45px; width:auto">
@@ -300,24 +303,24 @@
 	</div>
 <br>
 	<h2>Cancellation Data For The Major Airlines For 2010 - 2015 </h2>
-	<p style="margin: 40px; margin-bottom: 10px; margin-top:10px; font-size: 16px;">The four categories of flight cancellation cause, as reported by the Department of Transportation, are: National Air System, Carrier, Weather and Security. We have implemented a grid of maps to allow you to explore the cancellation data across the major carriers in USA. By hovering over over a single tile, you will be able to see the overall cancellations for a carrier, along with the cause of cancellation. The code inside the tiles represents the carrier code. </p>
-	<div style="height: 20px; margin-left: 40px;">
+	<p style="margin: 45px; margin-bottom: 10px; margin-top:10px; ">The four categories of flight cancellation cause, as reported by the Department of Transportation, are: National Air System, Carrier, Weather and Security. We have implemented a grid of maps to allow you to explore the cancellation data across the major carriers in USA. By hovering over over a single tile, you will be able to see the overall cancellations for a carrier, along with the cause of cancellation. The code inside the tiles represents the carrier code. </p>
+	<div style="height: 20px; margin-left: 45px;">
 		<p id="cancelInfo" style="display: none;">In the month of: <span id="monthSpan" class="spanInfo"></span>, there were: <span id="cancelSpan" class="spanInfo"></span> cancellations of flights by the carrier: <span id="carrierSpan" class="spanInfo"></span> and the cause of the cancellations was: <span id="causeSpan" class="spanInfo"></span>.</p>
 	</div>
 	<div style="width: 100%">
-	<div class="row">
+	<div class="row" style = "margin-top: 20px">
 		<div class="col-xs-3"><p class="monthLabel">January</p><div id="treemap1" style="height:  150px; position: relative; margin-left:10px;"></div></div>
 		<div class="col-xs-3"><p class="monthLabel">February</p><div id="treemap2" style="height: 150px; position: relative;margin-left:10px;  "></div></div>
 		<div class="col-xs-3"><p class="monthLabel">March</p><div id="treemap3" style="height: 150px; position: relative;margin-left:10px;  "></div></div>
 		<div class="col-xs-3"><p class="monthLabel">April</p><div id="treemap4" style="height: 150px; position: relative;margin-left:10px;  "></div></div>
 	</div>
-	<div class="row">
+	<div class="row" style = "margin-top: 20px">
 		<div class="col-xs-3"><p class="monthLabel">May</p><div id="treemap5" style="height: 150px; position: relative;margin-left:10px;"></div></div>
 		<div class="col-xs-3"><p class="monthLabel">June</p><div id="treemap6" style="height: 150px; position: relative;margin-left:10px;"></div></div>
 		<div class="col-xs-3"><p class="monthLabel">July</p><div id="treemap7" style="height: 150px; position: relative;margin-left:10px;"></div></div>
 		<div class="col-xs-3"><p class="monthLabel">August</p><div id="treemap8" style="height: 150px; position: relative;margin-left:10px;"></div></div>
 
-	<div class="row">
+	<div class="row" style = "margin-top: 20px">
 		<div class="col-xs-3"><p class="monthLabel">September</p><div id="treemap9" style= "height: 150px; position: relative;margin-left:10px;"></div></div> 
 		<div class="col-xs-3"><p class="monthLabel">October</p><div id="treemap10" style="height: 150px; position: relative;margin-left:10px;"></div></div> 
 		<div class="col-xs-3"><p class="monthLabel">November</p><div id="treemap11" style="height: 150px; position: relative;margin-left:10px;"></div></div> 
