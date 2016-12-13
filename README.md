@@ -1,12 +1,12 @@
 # CS573-Final-Project
-Project link: ["Final project link"](https://hmanso02.github.io/CS573-Final-Project/)
 
+Project link: ["Final project link"](https://hmanso02.github.io/CS573-Final-Project/)
 
 # Team
 
 - Hamid Mansoor, hmanso02
 - Mei Yang, emmagitlab
-- Xiaoyan Sun, jacysun
+- Huayan Sun, jacysun
 
 
 # Overview 
