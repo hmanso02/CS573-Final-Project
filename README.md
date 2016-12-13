@@ -14,7 +14,7 @@ Project link: ["VisA to VisB to VisC on Xiaoyan's Github"]()
 
 Air travel has become widely available to travellers in the US. Delays and cancellations by major airlines causes a lot of problems for travellers. We want to give viewers a tool to make an informed decision about the airline, airport, time of travel etc. that they choose, based on historical flight data. 
 We narrowed out scope to 30 major airports according to their rank in number of flights.
-We wrote script to filtered out the filtered out the flights with origin or destination that we are not interested in. 
+We wrote script to filtered out and training the flights with origin or destination that we are not interested in. 
 For the on time data for the parallel coordinates plot and the cancellation data for the treemap, we used python to group together the data by airline and years.
 
 
